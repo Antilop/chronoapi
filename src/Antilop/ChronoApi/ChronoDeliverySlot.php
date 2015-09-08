@@ -5,59 +5,33 @@ use Antilop\ChronoApi\Request\confirmDeliverySlot;
 
 class ChronoDeliverySlot extends SoapClient
 {
-	public function ChronoDeliverySlot($wsdl = 'https://www.chronopost.fr/rdv-cxf/services/CreneauServiceWS?wsdl', $options = array('trace' => true))
-	{
-		$auth = new stdClass();
-		$auth->password = $this->getPasswd();
-		$auth->accountNumber = $this->getAccount();
+	protected $password = false;
+	protected $accountNumber = false;
 
-		$header = new SoapHeader('http://cxf.soap.ws.creneau.chronopost.fr', 'Header', $auth);
-		$this->__setSoapHeaders($header);
+	public function ChronoDeliverySlot($wsdl = 'https://www.chronopost.fr/rdv-cxf/services/CreneauServiceWS?wsdl', $options = array('soap_version' => SOAP_1_1, 'trace' => 1))
+	{
 		parent::__construct($wsdl, $options);
 	}
 
 	public function __doRequest($request, $location, $action, $version)
 	{
-		$domRequest = new DOMDocument();
-		$domRequest->loadXML($request);
-
-		$xp = new DOMXPath($domRequest);
-		$xp->registerNamespace('s', 'http://schemas.xmlsoap.org/soap/envelope/');
-		$header = $xp->query('/s:Envelope/s:Header')->item(0);
-
-		$usernameToken = $domRequest->createElementNS('http://schemas.xmlsoap.org/ws/2002/07/secext', 'soapenv:Header');
-		$password= $domRequest->createElementNS('http://schemas.xmlsoap.org/ws/2002/07/secext', 'cxf:password', $this->getPasswd());
-		$username = $domRequest->createElementNS('http://schemas.xmlsoap.org/ws/2002/07/secext', 'cxf:accountNumber', $this->getAccount());
-
-		$usernameToken->appendChild($username);
-		$usernameToken->appendChild($password);
-		$header->appendChild($usernameToken);
-
-		$request = $domRequest->saveXML();
-
 		return parent::__doRequest($request, $location, $action, $version);
-	}
-
-	protected function getAccount()
-	{
-		return Configuration::get('CHRONOAPI_ACCOUNT');
-	}
-
-	protected function getPasswd()
-	{
-		return Configuration::get('CHRONOAPI_PASSWD');
 	}
 
 	public function searchDeliverySlot(searchDeliverySlot $parameters)
 	{
-		return $this->__call(
+		$this->password = $parameters->password;
+		$this->accountNumber = $parameters->accountNumber;
+
+		return $this->__soapCall(
 			'searchDeliverySlot',
 			array(
 				new SoapParam($parameters, 'parameters'),
 			),
+			array(),
 			array(
-				'uri' => 'http://cxf.soap.ws.creneau.chronopost.fr',
-				'soapaction' => ''
+				new SoapHeader('http://cxf.soap.ws.creneau.chronopost.fr/', 'password', $this->password, false),
+				new SoapHeader('http://cxf.soap.ws.creneau.chronopost.fr/', 'accountNumber', $this->accountNumber, false)
 			)
 		);
 	}
@@ -85,7 +59,7 @@ class ChronoDeliverySlot extends SoapClient
 		$shipping_ws = new ShippingServiceWSService();
 		$service = new ChronoDeliverySlot();
 	}
-	
+
 	public static function generateLabel(Customer $customer, Address $address, Order $order)
 	{
 		if (!Validate::isLoadedObject($customer) || !Validate::isLoadedObject($address) || !Validate::isLoadedObject($order)) {
