@@ -38,111 +38,112 @@ class ChronoDeliverySlot extends SoapClient
 
 	public function confirmDeliverySlot(confirmDeliverySlot $parameters)
 	{
+		$this->password = $parameters->password;
+		$this->accountNumber = $parameters->accountNumber;
+
 		return $this->__call(
 			'confirmDeliverySlot',
 			array(
 				new SoapParam($parameters, 'parameters')
 			),
+			array(),
 			array(
-				'uri' => 'http://cxf.soap.ws.creneau.chronopost.fr',
-				'soapaction' => ''
+				new SoapHeader('http://cxf.soap.ws.creneau.chronopost.fr/', 'password', $this->password, false),
+				new SoapHeader('http://cxf.soap.ws.creneau.chronopost.fr/', 'accountNumber', $this->accountNumber, false)
 			)
 		);
 	}
 
-	public static function checkDeliverySlot(Address $address, $time_slot)
+	public static function generateLabel(confirmDeliverySlot $parameters, $customer = array(), $recipient = array(), $esd = array(), $skybill = array(), $ref = array())
 	{
-		if (!Validate::isLoadedObject($address)) {
+		if (!is_array($customer) || !is_array($recipient) || !is_array($esd) || !is_array($skybill) || !is_array($ref)) {
 			return false;
 		}
 
 		$shipping_ws = new ShippingServiceWSService();
-		$service = new ChronoDeliverySlot();
-	}
 
-	public static function generateLabel(Customer $customer, Address $address, Order $order)
-	{
-		if (!Validate::isLoadedObject($customer) || !Validate::isLoadedObject($address) || !Validate::isLoadedObject($order)) {
-			return false;
-		}
-
-		$account = $this->getAccount();
-		$passwd = $this->getPasswd();
-
-		$shipping_ws = new ShippingServiceWSService();
-
-		$esd = new esdValue();
-		$esd->retrievalDateTime = date('Y-m-d');
-		$esd->closingDateTime = '';
-		$esd->specificInstructions = '';
-		$esd->width = '';
-		$esd->height = '';
-		$esd->length = '';
-		$esd->shipperCarriesCode = '';
-		$esd->shipperBuildingFloor = '';
-		$esd->shipperServiceDirection = '';
-		$esd->refEsdClient = '';
+		$now = new DateTime('now', new DateTimeZone('Europe/Paris'));
+		$esd_value = new esdValue();
+		$esd_value->retrievalDateTime = isset($esd['retrieval_datetime']) ? $esd['retrieval_datetime'] : '';
+		$esd_value->closingDateTime = isset($esd['closing_datetime']) ? $esd['closing_datetime'] : '';
+		$esd_value->specificInstructions = isset($esd['specific_instructions']) ? $esd['specific_instructions'] : '';
+		$esd_value->width = isset($esd['width']) ? (float)$esd['width'] : '';
+		$esd_value->height = isset($esd['height']) ? (float)$esd['height'] : '';
+		$esd_value->length = isset($esd['length']) ? (float)$esd['length'] : '';
+		$esd_value->shipperCarriesCode = isset($esd['shipper_carries_code']) ? $esd['shipper_carries_code'] : '';
+		$esd_value->shipperBuildingFloor = isset($esd['shipper_building_floor']) ? $esd['shipper_building_floor'] : '';
+		$esd_value->shipperServiceDirection = isset($esd['shipper_service_direction']) ? $esd['shipper_service_direction'] : '';
+		$esd_value->refEsdClient = isset($esd['ref_esd']) ? $esd['ref_esd'] : '';
 
 		$header = new headerValue();
-		$header->accountNumber = $account;
+		$header->accountNumber = $parameters->accountNumber;
 		$header->idEmit = 'CHRFR';
 
 		//Informations expéditeur
 		$shipper = new shipperValue();
-		$gender = new Gender($customer->id_gender, $order->id_lang);
-		$country_shipper = new Country($address->id_country);
-		$shipper->shipperCivility = $gender->name;
-		$shipper->shipperContactName = Tools::substr($customer->firstname . ' ' . $customer->lastname, 0, 35);
-		$shipper->shipperAdress1 = Tools::substr($address->address1, 0, 35);
-		$shipper->shipperAdress2 = Tools::substr($address->address2, 0, 35);
-		$shipper->shipperCity = Tools::substr($address->city, 0, 30);
-		$shipper->shipperCountry = $country_shipper->iso_code;
-		$shipper->shipperZipCode = $address->postcode;
-		$shipper->shipperName = $address->company;
-		$shipper->shipperName2 = Tools::substr($customer->firstname . ' ' . $customer->lastname, 0, 35);
+		$shipper->shipperCivility = $customer['civility'];
+		$shipper->shipperContactName = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
+		$shipper->shipperAdress1 = substr($customer['address1'], 0, 35);
+		$shipper->shipperAdress2 = substr($customer['address2'], 0, 35);
+		$shipper->shipperCity = substr($customer['city'], 0, 30);
+		$shipper->shipperCountry = $customer['iso_code'];
+		$shipper->shipperZipCode = $customer['zip_code'];
+		$shipper->shipperName = $customer['company'];
+		$shipper->shipperName2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
+
+		$customer_value = new customerValue();
+		$customer_value->customerCivility = $customer['civility'];
+		$customer_value->customerContactName = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
+		$customer_value->customerAdress1 = substr($customer['address1'], 0, 35);
+		$customer_value->customerAdress2 = substr($customer['address2'], 0, 35);
+		$customer_value->customerCity = substr($customer['city'], 0, 30);
+		$customer_value->customerCountry = $customer['iso_code'];
+		$customer_value->customerZipCode = $customer['zip_code'];
+		$customer_value->customerName = $customer['company'];
+		$customer_value->customer2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
 
 		//Informations destinataire
-		$recipient = new recipientValue();
-		$country_recipient = new Country(Configuration::get('PS_SHOP_COUNTRY_ID'));
-		$recipient->recipientCivility = '';
-		$recipient->recipientName = Configuration::get('PS_SHOP_NAME');
-		$recipient->recipientName2 = Configuration::get('PS_SHOP_NAME');
-		$recipient->recipientContactName = Configuration::get('PS_SHOP_NAME');
-		$recipient->recipientAdress1 = Configuration::get('PS_SHOP_ADDR1');
-		$recipient->recipientAdress2 = Configuration::get('PS_SHOP_ADDR2');
-		$recipient->recipientCity = Configuration::get('PS_SHOP_CITY');
-		$recipient->recipientCountry = $country_recipient->iso_code;
-		$recipient->recipientZipCode = Configuration::get('PS_SHOP_CODE');
+		$recipient_value = new recipientValue();
+		$recipient_value->recipientCivility = $recipient['civility'];
+		$recipient_value->recipientName = $recipient['name'];
+		$recipient_value->recipientName2 = $recipient['name2'];
+		$recipient_value->recipientContactName = substr($recipient['contact_name'], 0, 35);
+		$recipient_value->recipientAdress1 = $recipient['address1'];
+		$recipient_value->recipientAdress2 = $recipient['address2'];
+		$recipient_value->recipientCity = $recipient['city'];
+		$recipient_value->recipientCountry = $recipient['iso_code'];
+		$recipient_value->recipientZipCode = $recipient['zip_code'];
 
 		$ref_value = new refValue();
-		$ref_value->recipientRef = $address->postcode;
-		$ref_value->shipperRef = '';
+		$ref_value->recipientRef = isset($ref['recipient_ref']) ? $ref['recipient_ref'] : '';
+		$ref_value->shipperRef = isset($ref['shipper_ref']) ? $ref['shipper_ref'] : '';
 
-		$skybill = new skybillValue();
-		$skybill->productCode = '44';
-		$skybill->evtCode = 'DC';
-		$skybill->shipDate = date('Y-m-d\TH:i:s');
-		$skybill->shipHour = date('H');
-		$skybill->objectType = 'MAR'; //Type du colis = marchandise
-		$skybill->weight = $order->getTotalWeight();
+		$skybill_value = new skybillValue();
+		$skybill_value->productCode = isset($skybill['product_code']) ? $skybill['product_code'] : '';
+		$skybill_value->evtCode = isset($skybill['evt_code']) ? $skybill['evt_code'] : '';
+		$skybill_value->shipDate = $now->format('Y-m-d\TH:i:s');
+		$skybill_value->shipHour = $now->format('H');
+		$skybill_value->objectType = isset($skybill['object_type']) ? $skybill['object_type'] : ''; //Type du colis = marchandise
+		$skybill_value->weight = isset($skybill['weight']) ? (float)$skybill['weight'] : '';
+		$skybill_value->service = isset($skybill['service']) ? (int)$skybill['service'] : '';
 
 		$skybill_params = new skybillParamsValue();
 		$skybill_params->mode = 'PDF';
 
 		$create_label = new shippingWithReservationAndESDWithRefClient();
-		$create_label->password = '';
-		$create_label->esdValue = $esd;
+		$create_label->password = $parameters->password;
+		$create_label->esdValue = $esd_value;
 		$create_label->headerValue = $header;
 		$create_label->shipperValue = $shipper;
-		$create_label->recipientValue = $recipient;
+		$create_label->customerValue = $customer_value;
+		$create_label->recipientValue = $recipient_value;
 		$create_label->refValue = $ref_value;
-		$create_label->skybillValue = $skybill;
+		$create_label->skybillValue = $skybill_value;
 		$create_label->skybillParamsValue = $skybill_params;
 
 		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($create_label)->return;
-
 		if ($res->errorCode == 0) {
-			return $res->return->productService;
+			return $res;
 		} else {
 			return $res->errorMessage;
 		}

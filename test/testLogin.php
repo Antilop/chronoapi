@@ -1,21 +1,20 @@
 <?php
 
-require_once(dirname(__FILE__) . '/../../../../../../../config/config.inc.php');
-require_once(dirname(__FILE__) . '/../../../../../../../init.php');
-require_once(dirname(__FILE__) . '/../PointRelaisServiceWSService.php');
-require_once(dirname(__FILE__) . '/../Request/recherchePointChronopost.php');
+require_once(dirname(__FILE__) . '/../src/Antilop/ChronoApi/PointRelaisServiceWSService.php');
+require_once(dirname(__FILE__) . '/../src/Antilop/ChronoApi/Request/recherchePointChronopost.php');
 
 use Antilop\ChronoApi\Request\recherchePointChronopost;
 
-$account = Configuration::get('CHRONOAPI_ACCOUNT');
-$passwd = Configuration::get('CHRONOAPI_PASSWD');
+$account = $argv[1];
+$passwd = $argv[2];
 
 if (empty($account) || empty($passwd)) {
 	die('Paramètres de connexion manquant');
 }
 
-$service = new PointRelaisServiceWSService();
+$now = new DateTime('now', new DateTimeZone('Europe/Paris'));
 
+$service = new PointRelaisServiceWSService();
 
 $params = new recherchePointChronopost();
 $params->zipCode = '75009';
@@ -27,7 +26,7 @@ $params->countryCode = 'FR';
 $params->type = 'P';
 $params->service = 'L';
 $params->weight = 0;
-$params->shippingDate = date('d/m/Y');
+$params->shippingDate = $now->format('d/m/Y');
 $params->maxPointChronopost = 5;
 $params->maxDistanceSearch = 40;
 $params->holidayTolerant = 1;

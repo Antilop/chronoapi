@@ -419,6 +419,8 @@ class shippingWithESDOnlyResponse
  */
 class ShippingServiceWSService extends SoapClient
 {
+	protected $password = false;
+	protected $accountNumber = false;
 
 	private static $classmap = array(
 		'resultGetReservedSkybillWithTypeValue' => 'resultGetReservedSkybillWithTypeValue',
@@ -483,10 +485,19 @@ class ShippingServiceWSService extends SoapClient
 	 */
 	public function shipping(shipping $parameters)
 	{
-		return $this->__soapCall('shipping', array($parameters), array(
-				'uri' => 'http://cxf.shipping.soap.chronopost.fr/',
-				'soapaction' => ''
-				)
+		$this->password = $parameters->password;
+		$this->accountNumber = $parameters->accountNumber;
+		
+		return $this->__soapCall(
+			'shipping',
+			array(
+				new SoapParam($parameters, 'parameters')
+			),
+			array(),
+			array(
+				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'password', $this->password, false),
+				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'accountNumber', $this->accountNumber, false)
+			)
 		);
 	}
 
@@ -528,10 +539,19 @@ class ShippingServiceWSService extends SoapClient
 	 */
 	public function shippingWithReservationAndESDWithRefClient(shippingWithReservationAndESDWithRefClient $parameters)
 	{
-		return $this->__soapCall('shippingWithReservationAndESDWithRefClient', array($parameters), array(
-				'uri' => 'http://cxf.shipping.soap.chronopost.fr/',
-				'soapaction' => ''
-				)
+		$this->password = $parameters->password;
+		$this->accountNumber = $parameters->accountNumber;
+
+		return $this->__soapCall(
+			'shippingWithReservationAndESDWithRefClient',
+			array(
+				new SoapParam($parameters, 'parameters')
+			),
+			array(),
+			array(
+				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'password', $this->password, false),
+				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'accountNumber', $this->accountNumber, false)
+			)
 		);
 	}
 
@@ -543,10 +563,19 @@ class ShippingServiceWSService extends SoapClient
 	 */
 	public function shippingWithReservationAndESDWithRefClientPC(shippingWithReservationAndESDWithRefClientPC $parameters)
 	{
-		return $this->__soapCall('shippingWithReservationAndESDWithRefClientPC', array($parameters), array(
-				'uri' => 'http://cxf.shipping.soap.chronopost.fr/',
-				'soapaction' => ''
-				)
+		$this->password = $parameters->password;
+		$this->accountNumber = $parameters->accountNumber;
+		
+		return $this->__call(
+			'shippingWithReservationAndESDWithRefClientPC',
+			array(
+				new SoapParam($parameters, 'parameters')
+			),
+			array(),
+			array(
+				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'password', $this->password, false),
+				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'accountNumber', $this->accountNumber, false)
+			)
 		);
 	}
 
@@ -558,10 +587,19 @@ class ShippingServiceWSService extends SoapClient
 	 */
 	public function shippingWithESDOnly(shippingWithESDOnly $parameters)
 	{
-		return $this->__soapCall('shippingWithESDOnly', array($parameters), array(
-				'uri' => 'http://cxf.shipping.soap.chronopost.fr/',
-				'soapaction' => ''
-				)
+		$this->password = $parameters->password;
+		$this->accountNumber = $parameters->accountNumber;
+		
+		return $this->__soapCall(
+			'shippingWithESDOnly',
+			array(
+				new SoapParam($parameters, 'parameters')
+			),
+			array(),
+			array(
+				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'password', $this->password, false),
+				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'accountNumber', $this->accountNumber, false)
+			)
 		);
 	}
 

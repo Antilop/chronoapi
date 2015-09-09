@@ -10,7 +10,7 @@ class searchDeliverySlot {
 
 	public $callerTool = 'RDVWS';
 
-	public $productType = 'RDV';
+	public $productType;
 
 	public $shipperAdress1;
 
