@@ -5,7 +5,6 @@ use Antilop\ChronoApi\Request\recherchePointChronopostResponse;
 
 class PointRelaisServiceWSService extends SoapClient
 {
-
 	public function PointRelaisServiceWSService($wsdl = "https://www.chronopost.fr/recherchebt-ws-cxf/PointRelaisServiceWS?wsdl", $options = array())
 	{
 		parent::__construct($wsdl, $options);

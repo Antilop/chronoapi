@@ -2,17 +2,14 @@
 
 class resultGetReservedSkybillWithTypeValue
 {
-
 	public $errorCode; // int
 	public $errorMessage; // string
 	public $skybill; // string
 	public $type; // string
-
 }
 
 class esdValue
 {
-
 	public $closingDateTime; // dateTime
 	public $height; // float
 	public $length; // float
@@ -25,22 +22,18 @@ class esdValue
 	public $refEsdClient;
 	public $nombreDePassageMaximum = 1;
 	public $ltAImprimerParChronopost = 1;
-
 }
 
 class headerValue
 {
-
 	public $accountNumber; // int
 	public $idEmit; // string
 	public $identWebPro; // string
 	public $subAccount; // int
-
 }
 
 class shipperValue
 {
-
 	public $shipperAdress1; // string
 	public $shipperAdress2; // string
 	public $shipperCity; // string
@@ -55,12 +48,10 @@ class shipperValue
 	public $shipperPhone; // string
 	public $shipperPreAlert; // int
 	public $shipperZipCode; // string
-
 }
 
 class customerValue
 {
-
 	public $customerAdress1; // string
 	public $customerAdress2; // string
 	public $customerCity; // string
@@ -75,12 +66,10 @@ class customerValue
 	public $customerPhone; // string
 	public $customerPreAlert; // int
 	public $customerZipCode; // string
-
 }
 
 class recipientValue
 {
-
 	public $recipientAdress1; // string
 	public $recipientAdress2; // string
 	public $recipientCity; // string
@@ -94,22 +83,18 @@ class recipientValue
 	public $recipientPhone; // string
 	public $recipientPreAlert; // int
 	public $recipientZipCode; // string
-
 }
 
 class refValue
 {
-
 	public $customerSkybillNumber; // string
 	public $PCardTransactionNumber; // string
 	public $recipientRef; // string
 	public $shipperRef; // string
-
 }
 
 class skybillValue
 {
-
 	public $bulkNumber; // string
 	public $codCurrency; // string
 	public $codValue; // float
@@ -133,40 +118,32 @@ class skybillValue
 	public $skybillRank; // string
 	public $weight; // float
 	public $weightUnit; // string
-
 }
 
 class skybillParamsValue
 {
-
 	public $mode; // string
-
 }
 
 class resultExpeditionValue
 {
-
 	public $ESDNumber; // string
 	public $errorCode; // int
 	public $errorMessage; // string
 	public $pickupDate; // dateTime
 	public $skybill; // base64Binary
 	public $skybillNumber; // string
-
 }
 
 class resultGetReservedSkybillValue
 {
-
 	public $errorCode; // int
 	public $errorMessage; // string
 	public $skybill; // string
-
 }
 
 class resultReservationExpeditionValue
 {
-
 	public $codeDepot; // string
 	public $codeService; // string
 	public $DSort; // string
@@ -184,35 +161,27 @@ class resultReservationExpeditionValue
 	public $serviceName; // string
 	public $signaletiqueProduit; // string
 	public $skybillNumber; // string
-
 }
 
 class esdWithRefClientValue
 {
-
 	public $ltAImprimerParChronopost; // boolean
 	public $nombreDePassageMaximum; // int
 	public $refEsdClient; // string
-
 }
 
 class getReservedSkybillWithType
 {
-
 	public $reservationNumber; // string
-
 }
 
 class getReservedSkybillWithTypeResponse
 {
-
 	public $return; // resultGetReservedSkybillWithTypeValue
-
 }
 
 class shipping
 {
-
 	public $esdValue; // esdValue
 	public $headerValue; // headerValue
 	public $shipperValue; // shipperValue
@@ -222,33 +191,25 @@ class shipping
 	public $skybillValue; // skybillValue
 	public $skybillParamsValue; // skybillParamsValue
 	public $password; // string
-
 }
 
 class shippingResponse
 {
-
 	public $return; // resultExpeditionValue
-
 }
 
 class getReservedSkybill
 {
-
 	public $reservationNumber; // string
-
 }
 
 class getReservedSkybillResponse
 {
-
 	public $return; // resultGetReservedSkybillValue
-
 }
 
 class shippingWithReservation
 {
-
 	public $esdValue; // esdValue
 	public $headerValue; // headerValue
 	public $shipperValue; // shipperValue
@@ -259,7 +220,6 @@ class shippingWithReservation
 	public $skybillParamsValue; // skybillParamsValue
 	public $password; // string
 	public $modeRetour; // string
-
 }
 
 class shippingWithReservationResponse
@@ -271,7 +231,6 @@ class shippingWithReservationResponse
 
 class shippingWithReservationAndESDWithRefClient
 {
-
 	public $esdValue; // esdWithRefClientValue
 	public $headerValue; // headerValue
 	public $shipperValue; // shipperValue
@@ -282,19 +241,15 @@ class shippingWithReservationAndESDWithRefClient
 	public $skybillParamsValue; // skybillParamsValue
 	public $password; // string
 	public $modeRetour; // string
-
 }
 
 class shippingWithReservationAndESDWithRefClientResponse
 {
-
 	public $return; // resultReservationExpeditionValue
-
 }
 
 class shippingWithReservationAndESDWithRefClientPC
 {
-
 	public $refEsdClient; // string
 	public $retrievalDateTime; // string
 	public $closingDateTime; // string
@@ -386,14 +341,11 @@ class shippingWithReservationAndESDWithRefClientPC
 
 class shippingWithReservationAndESDWithRefClientPCResponse
 {
-
 	public $return; // resultReservationExpeditionValue
-
 }
 
 class shippingWithESDOnly
 {
-
 	public $esdValue; // esdWithRefClientValue
 	public $headerValue; // headerValue
 	public $shipperValue; // shipperValue
@@ -404,14 +356,11 @@ class shippingWithESDOnly
 	public $skybillParamsValue; // skybillParamsValue
 	public $password; // string
 	public $modeRetour; // string
-
 }
 
 class shippingWithESDOnlyResponse
 {
-
 	public $return; // resultReservationExpeditionValue
-
 }
 
 /**
