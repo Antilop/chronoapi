@@ -17,7 +17,7 @@ class ChronoDeliverySlot extends SoapClient
 	protected $password = false;
 	protected $accountNumber = false;
 
-	public function ChronoDeliverySlot($wsdl = 'https://www.chronopost.fr/rdv-cxf/services/CreneauServiceWS?wsdl', $options = array('soap_version' => SOAP_1_1, 'trace' => 1))
+	public function __construct($wsdl = 'https://www.chronopost.fr/rdv-cxf/services/CreneauServiceWS?wsdl', $options = array('soap_version' => SOAP_1_1, 'trace' => 1))
 	{
 		parent::__construct($wsdl, $options);
 	}
