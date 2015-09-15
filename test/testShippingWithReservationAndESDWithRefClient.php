@@ -5,6 +5,7 @@ require_once(dirname(__FILE__) . '/../src/Antilop/ChronoApi/ShippingServiceWSSer
 require_once(dirname(__FILE__) . '/../src/Antilop/ChronoApi/Request/confirmDeliverySlot.php');
 require_once(dirname(__FILE__) . '/../src/Antilop/ChronoApi/Request/searchDeliverySlot.php');
 
+use Antilop\ChronoApi\ChronoDeliverySlot;
 use Antilop\ChronoApi\Request\searchDeliverySlot;
 use Antilop\ChronoApi\Request\confirmDeliverySlot;
 
@@ -15,10 +16,10 @@ if (empty($account) || empty($passwd)) {
 	var_dump('Paramètres de connexion manquants.');
 }
 
-$ds = '2015-09-16 16:00:00';
-$date_selected = new DateTime($ds, new DateTimeZone('Europe/Paris'));
+$time_slot = '2015-10-01 14:00:00';
+$date_selected = new DateTime($time_slot, new DateTimeZone('Europe/Paris'));
 
-$dm = '2015-09-16 18:00:00';
+$dm = '2015-10-01 16:00:00';
 $date_max = new DateTime($dm, new DateTimeZone('Europe/Paris'));
 
 $params = new confirmDeliverySlot();
@@ -54,8 +55,8 @@ $esd = array(
 	'height' => '50',
 	'width' => '50',
 	'length' => '50',
-	'retrieval_datetime' => $date_selected->format('Y-m-d\TH:i:s'),
-	'closing_datetime' => $date_max->format('Y-m-d\TH:i:s')
+	'retrieval_datetime' => $date_selected->format('Y-m-d\TH:i:s.uZ'),
+	'closing_datetime' => $date_max->format('Y-m-d\TH:i:s.uZ')
 );
 
 $skybill = array(
@@ -66,6 +67,17 @@ $skybill = array(
 	'object_type' => 'MAR'
 );
 
-$res = ChronoDeliverySlot::generateLabel($params, $customer, $recipient, $esd, $skybill);
+$ref = array(
+	'recipient_ref' => '_REF_R_1',
+	'shipper_ref' => '_REF_S_2',
+);
+
+$scheduled = array(
+	'time_slot_end' => $date_selected->format('Y-m-d\TH:i:s.uZ'),
+	'time_slot_start' => $date_max->format('Y-m-d\TH:i:s.uZ'),
+	'time_slot_level' => 'N3',
+);
+
+$res = ChronoDeliverySlot::generateLabel($params, $customer, $recipient, $esd, $skybill, $ref, $scheduled);
 print_r($res);
 

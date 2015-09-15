@@ -3,6 +3,7 @@
 require_once(dirname(__FILE__) . '/../src/Antilop/ChronoApi/PointRelaisServiceWSService.php');
 require_once(dirname(__FILE__) . '/../src/Antilop/ChronoApi/Request/recherchePointChronopost.php');
 
+use Antilop\ChronoApi\PointRelaisServiceWSService;
 use Antilop\ChronoApi\Request\recherchePointChronopost;
 
 $account = $argv[1];
