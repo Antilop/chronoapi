@@ -1,7 +1,17 @@
 <?php
 
+namespace Antilop\ChronoApi;
+
+use SoapClient;
+use SoapParam;
+use SoapHeader;
+use DateTime;
+use DateTimeZone;
+use DOMDocument;
+
 use Antilop\ChronoApi\Request\searchDeliverySlot;
 use Antilop\ChronoApi\Request\confirmDeliverySlot;
+use Antilop\ChronoApi\ShippingServiceWSService;
 
 class ChronoDeliverySlot extends SoapClient
 {
@@ -41,10 +51,10 @@ class ChronoDeliverySlot extends SoapClient
 		$this->password = $parameters->password;
 		$this->accountNumber = $parameters->accountNumber;
 
-		return $this->__call(
+		return $this->__soapCall(
 			'confirmDeliverySlot',
 			array(
-				new SoapParam($parameters, 'parameters')
+				new SoapParam($parameters, 'parameters'),
 			),
 			array(),
 			array(
@@ -54,13 +64,13 @@ class ChronoDeliverySlot extends SoapClient
 		);
 	}
 
-	public static function generateLabel(confirmDeliverySlot $parameters, $customer = array(), $recipient = array(), $esd = array(), $skybill = array(), $ref = array())
+	public static function generateLabel(confirmDeliverySlot $parameters, $customer = array(), $recipient = array(), $esd = array(), $skybill = array(), $ref = array(), $scheduled = array(), $appointment = array())
 	{
 		if (!is_array($customer) || !is_array($recipient) || !is_array($esd) || !is_array($skybill) || !is_array($ref)) {
 			return false;
 		}
 
-		$shipping_ws = new ShippingServiceWSService();
+		$shipping_ws = new ShippingServiceWSService("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('soap_version' => SOAP_1_1, 'trace' => 1));
 
 		$now = new DateTime('now', new DateTimeZone('Europe/Paris'));
 		$esd_value = new esdValue();
@@ -104,15 +114,15 @@ class ChronoDeliverySlot extends SoapClient
 
 		//Informations destinataire
 		$recipient_value = new recipientValue();
-		$recipient_value->recipientCivility = $recipient['civility'];
-		$recipient_value->recipientName = $recipient['name'];
-		$recipient_value->recipientName2 = $recipient['name2'];
-		$recipient_value->recipientContactName = substr($recipient['contact_name'], 0, 35);
-		$recipient_value->recipientAdress1 = $recipient['address1'];
-		$recipient_value->recipientAdress2 = $recipient['address2'];
-		$recipient_value->recipientCity = $recipient['city'];
-		$recipient_value->recipientCountry = $recipient['iso_code'];
-		$recipient_value->recipientZipCode = $recipient['zip_code'];
+		$recipient_value->recipientCivility = isset($recipient['civility']) ? $recipient['civility'] : '';
+		$recipient_value->recipientName = isset($recipient['name']) ? $recipient['name'] : '';
+		$recipient_value->recipientName2 = isset($recipient['name2']) ? $recipient['name2'] : '';
+		$recipient_value->recipientContactName = isset($recipient['contact_name']) ? substr($recipient['contact_name'], 0, 35) : '';
+		$recipient_value->recipientAdress1 = isset($recipient['address1']) ? $recipient['address1'] : '';
+		$recipient_value->recipientAdress2 = isset($recipient['address2']) ? $recipient['address2'] : '';
+		$recipient_value->recipientCity = isset($recipient['city']) ? $recipient['city'] : '';
+		$recipient_value->recipientCountry = isset($recipient['iso_code']) ? $recipient['iso_code'] : '';
+		$recipient_value->recipientZipCode = isset($recipient['zip_code']) ? $recipient['zip_code'] : '';
 
 		$ref_value = new refValue();
 		$ref_value->recipientRef = isset($ref['recipient_ref']) ? $ref['recipient_ref'] : '';
@@ -125,10 +135,20 @@ class ChronoDeliverySlot extends SoapClient
 		$skybill_value->shipHour = $now->format('H');
 		$skybill_value->objectType = isset($skybill['object_type']) ? $skybill['object_type'] : ''; //Type du colis = marchandise
 		$skybill_value->weight = isset($skybill['weight']) ? (float)$skybill['weight'] : '';
-		$skybill_value->service = isset($skybill['service']) ? (int)$skybill['service'] : '';
+		$skybill_value->service = isset($skybill['service']) ? $skybill['service'] : '';
 
 		$skybill_params = new skybillParamsValue();
 		$skybill_params->mode = 'PDF';
+
+		$appointment_value = new appointementParamsValue();
+		$appointment_value->appointmentValue = isset($appointment['appointment']) ? $appointment['appointment'] : '';
+		$appointment_value->expirationDate = isset($appointment['expiration_date']) ? $appointment['expiration_date'] : '';
+		$appointment_value->sellByDate = isset($appointment['sell_date']) ? $appointment['sell_date'] : '';
+
+		$scheduled_value = new scheduledParamsValue();
+		$scheduled_value->timeSlotEndDate = isset($scheduled['time_slot_end']) ? $scheduled['time_slot_end'] : '';
+		$scheduled_value->timeSlotStartDate = isset($scheduled['time_slot_start']) ? $scheduled['time_slot_start'] : '';
+		$scheduled_value->timeSlotTariffLevel = isset($scheduled['time_slot_level']) ? $scheduled['time_slot_level'] : '';
 
 		$create_label = new shippingWithReservationAndESDWithRefClient();
 		$create_label->password = $parameters->password;
@@ -143,9 +163,17 @@ class ChronoDeliverySlot extends SoapClient
 
 		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($create_label)->return;
 		if ($res->errorCode == 0) {
-			return $res;
+			$result = array(
+				'result' => true,
+				'esd' => $res
+			);
 		} else {
-			return $res->errorMessage;
+			$result = array(
+				'result' => false,
+				'message' => $res->errorMessage
+			);
 		}
+
+		return $result;
 	}
 }

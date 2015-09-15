@@ -1,5 +1,7 @@
 <?php
 
+namespace Antilop\ChronoApi;
+
 use Antilop\ChronoApi\Request\recherchePointChronopost;
 use Antilop\ChronoApi\Request\recherchePointChronopostResponse;
 
