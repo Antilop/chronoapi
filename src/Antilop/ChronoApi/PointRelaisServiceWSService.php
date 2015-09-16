@@ -1,11 +1,17 @@
 <?php
 
+namespace Antilop\ChronoApi;
+
+use SoapClient;
+use SoapParam;
+use SoapHeader;
+
 use Antilop\ChronoApi\Request\recherchePointChronopost;
 use Antilop\ChronoApi\Request\recherchePointChronopostResponse;
 
 class PointRelaisServiceWSService extends SoapClient
 {
-	public function PointRelaisServiceWSService($wsdl = "https://www.chronopost.fr/recherchebt-ws-cxf/PointRelaisServiceWS?wsdl", $options = array())
+	public function __construct($wsdl = "https://www.chronopost.fr/recherchebt-ws-cxf/PointRelaisServiceWS?wsdl", $options = array())
 	{
 		parent::__construct($wsdl, $options);
 	}
