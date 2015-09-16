@@ -1,0 +1,19 @@
+{
+	"name" : "antilop/chronoapi",
+	"description" : "WebService Chronopost",
+	"require" : {
+		"psr/log" : "dev-master"
+	},
+	"authors" : [
+		{
+			"name" : "stephanie",
+			"email" : "stephanie@antilop.fr"
+		}
+	],
+	"minimum-stability" : "dev",
+	"autoload" : {
+		"psr-0" : {
+			"Antilop\\ChronoApi" : "src/"
+		}
+	}
+}
