@@ -16,11 +16,13 @@ if (empty($account) || empty($passwd)) {
 	var_dump('Paramètres de connexion manquants.');
 }
 
-$time_slot = '2015-10-01 14:00:00';
-$date_selected = new DateTime($time_slot, new DateTimeZone('Europe/Paris'));
+$now = new DateTime('now', new DateTimeZone('Europe/Paris'));
 
-$dm = '2015-10-01 16:00:00';
-$date_max = new DateTime($dm, new DateTimeZone('Europe/Paris'));
+$date_selected = clone $now;
+$date_selected->modify('+1 day');
+
+$date_max = clone $date_selected;
+$date_max->modify('+2hour');
 
 $params = new confirmDeliverySlot();
 $params->accountNumber = $account;
@@ -72,12 +74,6 @@ $ref = array(
 	'shipper_ref' => '_REF_S_2',
 );
 
-$scheduled = array(
-	'time_slot_end' => $date_selected->format('Y-m-d\TH:i:s.uZ'),
-	'time_slot_start' => $date_max->format('Y-m-d\TH:i:s.uZ'),
-	'time_slot_level' => 'N3',
-);
-
-$res = ChronoDeliverySlot::generateLabel($params, $customer, $recipient, $esd, $skybill, $ref, $scheduled);
+$res = ChronoDeliverySlot::esdBooking($params, $customer, $recipient, $esd, $skybill, $ref);
 print_r($res);
 

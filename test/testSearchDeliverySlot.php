@@ -14,11 +14,10 @@ if (empty($account) || empty($passwd)) {
 	var_dump('Paramètres de connexion');
 }
 
-$ds = '2015-09-17 14:00:00';
-$date_start = new DateTime($ds, new DateTimeZone('Europe/Paris'));
+$now = new DateTime('now', new DateTimeZone('Europe/Paris'));
 
-$dm = '2015-09-18 16:00:00';
-$date_end = new DateTime($dm, new DateTimeZone('Europe/Paris'));
+$date_start = clone $now;
+$date_start->modify('+1 day');
 
 $service = new ChronoDeliverySlot();
 
@@ -33,7 +32,6 @@ $params->shipperCountry = 'FR';
 $params->recipientCountry = 'FR';
 $params->recipientZipCode = '75009';
 $params->dateBegin = $date_start->format('Y-m-d\TH:i:s.uZ');
-$params->dateEnd = $date_end->format('Y-m-d\TH:i:s.uZ');
 $params->productType = 'RDV';
 
 $res = $service->searchDeliverySlot($params)->return;

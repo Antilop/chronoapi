@@ -63,7 +63,7 @@ class ChronoDeliverySlot extends SoapClient
 		);
 	}
 
-	public static function generateLabel(confirmDeliverySlot $parameters, $customer = array(), $recipient = array(), $esd = array(), $skybill = array(), $ref = array(), $scheduled = array(), $appointment = array())
+	public static function esdBooking(confirmDeliverySlot $parameters, $customer = array(), $recipient = array(), $esd = array(), $skybill = array(), $ref = array(), $mode_retour = 2)
 	{
 		if (!is_array($customer) || !is_array($recipient) || !is_array($esd) || !is_array($skybill) || !is_array($ref)) {
 			return false;
@@ -99,6 +99,8 @@ class ChronoDeliverySlot extends SoapClient
 		$shipper->shipperZipCode = $customer['zip_code'];
 		$shipper->shipperName = $customer['company'];
 		$shipper->shipperName2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
+		$shipper->shipperMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
+		$shipper->shipperPhone = isset($customer['phone']) ? $customer['phone'] : '';
 
 		$customer_value = new customerValue();
 		$customer_value->customerCivility = $customer['civility'];
@@ -110,6 +112,8 @@ class ChronoDeliverySlot extends SoapClient
 		$customer_value->customerZipCode = $customer['zip_code'];
 		$customer_value->customerName = $customer['company'];
 		$customer_value->customer2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
+		$customer_value->customerMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
+		$customer_value->customerPhone = isset($customer['phone']) ? $customer['phone'] : '';
 
 		//Informations destinataire
 		$recipient_value = new recipientValue();
@@ -122,6 +126,8 @@ class ChronoDeliverySlot extends SoapClient
 		$recipient_value->recipientCity = isset($recipient['city']) ? $recipient['city'] : '';
 		$recipient_value->recipientCountry = isset($recipient['iso_code']) ? $recipient['iso_code'] : '';
 		$recipient_value->recipientZipCode = isset($recipient['zip_code']) ? $recipient['zip_code'] : '';
+		$recipient_value->recipientPhone = isset($recipient['mobile']) ? $recipient['mobile'] : '';
+		$recipient_value->recipientMobilePhone = isset($recipient['phone']) ? $recipient['phone'] : '';
 
 		$ref_value = new refValue();
 		$ref_value->recipientRef = isset($ref['recipient_ref']) ? $ref['recipient_ref'] : '';
@@ -139,28 +145,19 @@ class ChronoDeliverySlot extends SoapClient
 		$skybill_params = new skybillParamsValue();
 		$skybill_params->mode = 'PDF';
 
-		$appointment_value = new appointementParamsValue();
-		$appointment_value->appointmentValue = isset($appointment['appointment']) ? $appointment['appointment'] : '';
-		$appointment_value->expirationDate = isset($appointment['expiration_date']) ? $appointment['expiration_date'] : '';
-		$appointment_value->sellByDate = isset($appointment['sell_date']) ? $appointment['sell_date'] : '';
+		$esd_booking = new shippingWithESDOnly();
+		$esd_booking->esdValue = $esd_value;
+		$esd_booking->headerValue = $header;
+		$esd_booking->shipperValue = $shipper;
+		$esd_booking->customerValue = $customer_value;
+		$esd_booking->recipientValue = $recipient_value;
+		$esd_booking->refValue = $ref_value;
+		$esd_booking->skybillValue = $skybill_value;
+		$esd_booking->skybillParamsValue = $skybill_params;
+		$esd_booking->password = $parameters->password;
+		$esd_booking->modeRetour = $mode_retour;
 
-		$scheduled_value = new scheduledParamsValue();
-		$scheduled_value->timeSlotEndDate = isset($scheduled['time_slot_end']) ? $scheduled['time_slot_end'] : '';
-		$scheduled_value->timeSlotStartDate = isset($scheduled['time_slot_start']) ? $scheduled['time_slot_start'] : '';
-		$scheduled_value->timeSlotTariffLevel = isset($scheduled['time_slot_level']) ? $scheduled['time_slot_level'] : '';
-
-		$create_label = new shippingWithReservationAndESDWithRefClient();
-		$create_label->password = $parameters->password;
-		$create_label->esdValue = $esd_value;
-		$create_label->headerValue = $header;
-		$create_label->shipperValue = $shipper;
-		$create_label->customerValue = $customer_value;
-		$create_label->recipientValue = $recipient_value;
-		$create_label->refValue = $ref_value;
-		$create_label->skybillValue = $skybill_value;
-		$create_label->skybillParamsValue = $skybill_params;
-
-		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($create_label)->return;
+		$res = $shipping_ws->shippingWithESDOnly($esd_booking)->return;
 		if ($res->errorCode == 0) {
 			$result = array(
 				'result' => true,
