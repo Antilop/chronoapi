@@ -2,6 +2,10 @@
 
 namespace Antilop\ChronoApi;
 
+use SoapClient;
+use SoapParam;
+use SoapHeader;
+
 use Antilop\ChronoApi\Request\recherchePointChronopost;
 use Antilop\ChronoApi\Request\recherchePointChronopostResponse;
 
