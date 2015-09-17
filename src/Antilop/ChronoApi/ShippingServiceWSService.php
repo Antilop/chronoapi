@@ -559,7 +559,6 @@ class ShippingServiceWSService extends SoapClient
 	public function shippingWithESDOnly(shippingWithESDOnly $parameters)
 	{
 		$this->password = $parameters->password;
-		$this->accountNumber = $parameters->accountNumber;
 
 		return $this->__soapCall(
 			'shippingWithESDOnly',
@@ -568,8 +567,7 @@ class ShippingServiceWSService extends SoapClient
 			),
 			array(),
 			array(
-				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'password', $this->password, false),
-				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'accountNumber', $this->accountNumber, false)
+				new SoapHeader('http://cxf.shipping.soap.chronopost.fr/', 'password', $this->password, false)
 			)
 		);
 	}
