@@ -145,7 +145,7 @@ class ChronoDeliverySlot extends SoapClient
 		$skybill_params = new skybillParamsValue();
 		$skybill_params->mode = 'PDF';
 
-		$esd_booking = new shippingWithESDOnly();
+		$esd_booking = new shippingWithReservationAndESDWithRefClient();
 		$esd_booking->esdValue = $esd_value;
 		$esd_booking->headerValue = $header;
 		$esd_booking->shipperValue = $shipper;
@@ -157,7 +157,7 @@ class ChronoDeliverySlot extends SoapClient
 		$esd_booking->password = $parameters->password;
 		$esd_booking->modeRetour = $mode_retour;
 
-		$res = $shipping_ws->shippingWithESDOnly($esd_booking)->return;
+		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($esd_booking)->return;
 		if ($res->errorCode == 0) {
 			$result = array(
 				'result' => true,
@@ -166,7 +166,8 @@ class ChronoDeliverySlot extends SoapClient
 		} else {
 			$result = array(
 				'result' => false,
-				'message' => $res->errorMessage
+				'message' => $res->errorMessage,
+				'code' => $res->errorCode
 			);
 		}
 
