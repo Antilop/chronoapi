@@ -159,6 +159,6 @@ if (!$etiquette['result']) {
 }
 
 echo "----------------4 : Récupération étiquette ------------\n";
-echo "Url étiquette : " . $etiquette['url_etiquette_zpl'] ."\n";
+echo "Url étiquette : " . $etiquette['url_etiquette'] ."\n";
 echo "-------------------------------------------------------";
 echo "\n\n";

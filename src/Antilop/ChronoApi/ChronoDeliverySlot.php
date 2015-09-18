@@ -285,7 +285,7 @@ class ChronoDeliverySlot extends SoapClient
 			if ($error_code === 0) {
 				$result = array(
 					'result' => true,
-					'url_etiquette_zpl' => 'https://www.chronopost.fr/shipping-cxf/getReservedSkybill?reservationNumber=' . $params['reservation_number']
+					'url_etiquette' => 'https://www.chronopost.fr/shipping-cxf/getReservedSkybill?reservationNumber=' . $params['reservation_number']
 				);
 			} else {
 				$result = array(
