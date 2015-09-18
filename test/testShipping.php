@@ -109,15 +109,17 @@ $customer = array(
 	'civility' => 'M',
 	'firstname' => 'John',
 	'lastname' => 'Doe',
+	'name' => 'John Doe',
 	'address1' => '46 rue de douai',
 	'address2' => '',
 	'zip_code' => 75009,
 	'city' => 'Paris',
 	'company' => '',
-	'iso_code' => 'FR'
+	'iso_code' => 'FR',
+	'phone' => '0102030405'
 );
 
-$recipient = array(
+$shipper = array(
 	'civility' => 'M',
 	'name' => 'Entreprise X',
 	'name2' => '',
@@ -141,7 +143,7 @@ $ref = array(
 	'shipper_ref' => '123456'
 );
 
-$res = ChronoDeliverySlot::shippingBooking($confirm, $customer, $recipient, $skybill, $ref);
+$res = ChronoDeliverySlot::shippingBooking($confirm, $customer, $shipper, $skybill, $ref);
 
 $booking = $res['shipping'];
 
