@@ -173,4 +173,133 @@ class ChronoDeliverySlot extends SoapClient
 
 		return $result;
 	}
+
+	public static function shippingBooking(confirmDeliverySlot $parameters, $customer = array(), $recipient = array(), $skybill = array(), $ref = array())
+	{
+		if (!is_array($customer) || !is_array($recipient) || !is_array($skybill) || !is_array($ref)) {
+			return false;
+		}
+
+		$shipping_ws = new ShippingServiceWSService("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('soap_version' => SOAP_1_1, 'trace' => 1));
+
+		$now = new DateTime('now', new DateTimeZone('Europe/Paris'));
+
+		$header = new headerValue();
+		$header->accountNumber = $parameters->accountNumber;
+		$header->idEmit = 'CHRFR';
+
+		//Informations expéditeur
+		$shipper = new shipperValue();
+		$shipper->shipperCivility = $customer['civility'];
+		$shipper->shipperContactName = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
+		$shipper->shipperAdress1 = substr($customer['address1'], 0, 35);
+		$shipper->shipperAdress2 = substr($customer['address2'], 0, 35);
+		$shipper->shipperCity = substr($customer['city'], 0, 30);
+		$shipper->shipperCountry = $customer['iso_code'];
+		$shipper->shipperZipCode = $customer['zip_code'];
+		$shipper->shipperName = $customer['company'];
+		$shipper->shipperName2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
+		$shipper->shipperMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
+		$shipper->shipperPhone = isset($customer['phone']) ? $customer['phone'] : '';
+
+		$customer_value = new customerValue();
+		$customer_value->customerCivility = $customer['civility'];
+		$customer_value->customerContactName = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
+		$customer_value->customerAdress1 = substr($customer['address1'], 0, 35);
+		$customer_value->customerAdress2 = substr($customer['address2'], 0, 35);
+		$customer_value->customerCity = substr($customer['city'], 0, 30);
+		$customer_value->customerCountry = $customer['iso_code'];
+		$customer_value->customerZipCode = $customer['zip_code'];
+		$customer_value->customerName = $customer['company'];
+		$customer_value->customer2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
+		$customer_value->customerMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
+		$customer_value->customerPhone = isset($customer['phone']) ? $customer['phone'] : '';
+
+		//Informations destinataire
+		$recipient_value = new recipientValue();
+		$recipient_value->recipientCivility = isset($recipient['civility']) ? $recipient['civility'] : '';
+		$recipient_value->recipientName = isset($recipient['name']) ? $recipient['name'] : '';
+		$recipient_value->recipientName2 = isset($recipient['name2']) ? $recipient['name2'] : '';
+		$recipient_value->recipientContactName = isset($recipient['contact_name']) ? substr($recipient['contact_name'], 0, 35) : '';
+		$recipient_value->recipientAdress1 = isset($recipient['address1']) ? $recipient['address1'] : '';
+		$recipient_value->recipientAdress2 = isset($recipient['address2']) ? $recipient['address2'] : '';
+		$recipient_value->recipientCity = isset($recipient['city']) ? $recipient['city'] : '';
+		$recipient_value->recipientCountry = isset($recipient['iso_code']) ? $recipient['iso_code'] : '';
+		$recipient_value->recipientZipCode = isset($recipient['zip_code']) ? $recipient['zip_code'] : '';
+		$recipient_value->recipientPhone = isset($recipient['mobile']) ? $recipient['mobile'] : '';
+		$recipient_value->recipientMobilePhone = isset($recipient['phone']) ? $recipient['phone'] : '';
+
+		$ref_value = new refValue();
+		$ref_value->recipientRef = isset($ref['recipient_ref']) ? $ref['recipient_ref'] : '';
+		$ref_value->shipperRef = isset($ref['shipper_ref']) ? $ref['shipper_ref'] : '';
+
+		$skybill_value = new skybillValue();
+		$skybill_value->productCode = isset($skybill['product_code']) ? $skybill['product_code'] : '';
+		$skybill_value->evtCode = isset($skybill['evt_code']) ? $skybill['evt_code'] : '';
+		$skybill_value->shipDate = $now->format('Y-m-d\TH:i:s');
+		$skybill_value->shipHour = $now->format('H');
+		$skybill_value->objectType = isset($skybill['object_type']) ? $skybill['object_type'] : ''; //Type du colis = marchandise
+		$skybill_value->weight = isset($skybill['weight']) ? (float)$skybill['weight'] : '';
+		$skybill_value->service = isset($skybill['service']) ? $skybill['service'] : '';
+
+		$skybill_params = new skybillParamsValue();
+		$skybill_params->mode = 'PDF';
+
+		$shipping_booking = new shippingWithReservationAndESDWithRefClient();
+		$shipping_booking->headerValue = $header;
+		$shipping_booking->shipperValue = $shipper;
+		$shipping_booking->customerValue = $customer_value;
+		$shipping_booking->recipientValue = $recipient_value;
+		$shipping_booking->refValue = $ref_value;
+		$shipping_booking->skybillValue = $skybill_value;
+		$shipping_booking->skybillParamsValue = $skybill_params;
+		$shipping_booking->password = $parameters->password;
+
+		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($shipping_booking)->return;
+		if ($res->errorCode == 0) {
+			$result = array(
+				'result' => true,
+				'shipping' => $res
+			);
+		} else {
+			$result = array(
+				'result' => false,
+				'message' => $res->errorMessage,
+				'code' => $res->errorCode
+			);
+		}
+
+		return $result;
+	}
+
+	public static function getEtiquette($params)
+	{
+		$etiquette = new getReservedSkybillWithType();
+		$etiquette->reservationNumber = $params['reservation_number'];
+
+		$shipping_ws = new ShippingServiceWSService("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('soap_version' => SOAP_1_1, 'trace' => 1));
+		$response = $shipping_ws->getReservedSkybillWithType($etiquette)->return;
+
+		if (is_object($response)) {
+			$error_code = $response->errorCode;
+			if ($error_code === 0) {
+				$result = array(
+					'result' => true,
+					'url_etiquette_zpl' => 'https://www.chronopost.fr/shipping-cxf/getReservedSkybill?reservationNumber=' . $params['reservation_number']
+				);
+			} else {
+				$result = array(
+					'result' => false,
+					'error' => $response->errorMessage
+				);
+			}
+		} else {
+			$result = array(
+				'result' => false,
+				'error' => $response->errorMessage
+			);
+		}
+
+		return $result;
+	}
 }
