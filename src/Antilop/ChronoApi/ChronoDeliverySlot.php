@@ -63,7 +63,7 @@ class ChronoDeliverySlot extends SoapClient
 		);
 	}
 
-	public static function esdBooking(confirmDeliverySlot $parameters, $customer = array(), $recipient = array(), $esd = array(), $skybill = array(), $ref = array(), $mode = 'PDF', $mode_retour = 2)
+	public static function esdBooking(confirmDeliverySlot $parameters, $customer = array(), $recipient = array(), $esd = array(), $skybill = array(), $ref = array(), $mode_retour = 2)
 	{
 		if (!is_array($customer) || !is_array($recipient) || !is_array($esd) || !is_array($skybill) || !is_array($ref)) {
 			return false;
@@ -83,8 +83,6 @@ class ChronoDeliverySlot extends SoapClient
 		$esd_value->shipperBuildingFloor = isset($esd['shipper_building_floor']) ? $esd['shipper_building_floor'] : '';
 		$esd_value->shipperServiceDirection = isset($esd['shipper_service_direction']) ? $esd['shipper_service_direction'] : '';
 		$esd_value->refEsdClient = isset($esd['ref_esd']) ? $esd['ref_esd'] : '';
-		$esd_value->nombreDePassageMaximum = isset($esd['nb_passage']) ? $esd['nb_passage'] : '';
-		$esd_value->ltAImprimerParChronopost = isset($esd['lt_print_by_chrono']) ? $esd['lt_print_by_chrono'] : '';
 
 		$header = new headerValue();
 		$header->accountNumber = $parameters->accountNumber;
@@ -103,9 +101,6 @@ class ChronoDeliverySlot extends SoapClient
 		$shipper->shipperName2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
 		$shipper->shipperMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
 		$shipper->shipperPhone = isset($customer['phone']) ? $customer['phone'] : '';
-		$shipper->shipperCountryName = isset($customer['country']) ? $customer['country'] : '';
-		$shipper->shipperEmail = isset($customer['email']) ? $customer['email'] : '';
-		$shipper->shipperPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
 
 		$customer_value = new customerValue();
 		$customer_value->customerCivility = $customer['civility'];
@@ -119,9 +114,6 @@ class ChronoDeliverySlot extends SoapClient
 		$customer_value->customer2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
 		$customer_value->customerMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
 		$customer_value->customerPhone = isset($customer['phone']) ? $customer['phone'] : '';
-		$customer_value->customerCountryName = isset($customer['country']) ? $customer['country'] : '';
-		$customer_value->customerEmail = isset($customer['email']) ? $customer['email'] : '';
-		$customer_value->customerPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
 
 		//Informations destinataire
 		$recipient_value = new recipientValue();
@@ -136,15 +128,10 @@ class ChronoDeliverySlot extends SoapClient
 		$recipient_value->recipientZipCode = isset($recipient['zip_code']) ? $recipient['zip_code'] : '';
 		$recipient_value->recipientPhone = isset($recipient['mobile']) ? $recipient['mobile'] : '';
 		$recipient_value->recipientMobilePhone = isset($recipient['phone']) ? $recipient['phone'] : '';
-		$recipient_value->recipientCountryName = isset($customer['country']) ? $customer['country'] : '';
-		$recipient_value->recipientEmail = isset($recipient['email']) ? $recipient['email'] : '';
-		$recipient_value->recipientPreAlert = isset($recipient['pre_alert']) ? $recipient['pre_alert'] : '';
 
 		$ref_value = new refValue();
 		$ref_value->recipientRef = isset($ref['recipient_ref']) ? $ref['recipient_ref'] : '';
 		$ref_value->shipperRef = isset($ref['shipper_ref']) ? $ref['shipper_ref'] : '';
-		$ref_value->customerSkybillNumber = isset($ref['customer_skybill_number']) ? $ref['customer_skybill_number'] : '';
-		$ref_value->PCardTransactionNumber = isset($ref['card_transaction_number']) ? $ref['card_transaction_number'] : '';
 
 		$skybill_value = new skybillValue();
 		$skybill_value->productCode = isset($skybill['product_code']) ? $skybill['product_code'] : '';
@@ -156,7 +143,7 @@ class ChronoDeliverySlot extends SoapClient
 		$skybill_value->service = isset($skybill['service']) ? $skybill['service'] : '';
 
 		$skybill_params = new skybillParamsValue();
-		$skybill_params->mode = $mode;
+		$skybill_params->mode = 'PDF';
 
 		$esd_booking = new shippingWithReservationAndESDWithRefClient();
 		$esd_booking->esdValue = $esd_value;
