@@ -19,7 +19,7 @@ if (empty($account) || empty($passwd)) {
 
 $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
 
-$date = '2015-09-21';
+$date = '2015-09-28';
 $date_start = new DateTime($date, new DateTimeZone('Europe/Paris'));
 $start_hour = 10;
 $end_hour = 12;
@@ -65,6 +65,7 @@ $date_selected = '';
 $slot_start = '';
 $slot_end = '';
 $rank = '';
+$tariff = '';
 
 $find_slot = false;
 foreach($slots as $slot) {
@@ -76,6 +77,7 @@ foreach($slots as $slot) {
 		$date_selected = $slot->deliveryDate;
 		$slot_start = $slot->startHour;
 		$slot_end = $slot->endHour;
+		$tariff = $slot->tariffLevel;
 		break;
 	}
 }
@@ -105,6 +107,9 @@ echo $res_confirm->message . "\n";
 echo "-------------------------------------------------------------";
 echo "\n\n";
 
+$product_code = $res_confirm->productService->productCode;
+$service_code = $res_confirm->productService->serviceCode;
+
 $customer = array(
 	'civility' => 'M',
 	'firstname' => 'John',
@@ -114,8 +119,8 @@ $customer = array(
 	'address2' => '',
 	'zip_code' => 75009,
 	'city' => 'Paris',
-	'company' => '',
 	'iso_code' => 'FR',
+	'country' => 'FRANCE',
 	'phone' => '0102030405'
 );
 
@@ -124,18 +129,31 @@ $shipper = array(
 	'name' => 'Entreprise X',
 	'name2' => '',
 	'address1' => '57 boulevard des batignolles',
-	'address2' => '',
+	'address2' => 'App 6',
 	'zip_code' => 75017,
 	'city' => 'Paris',
-	'iso_code' => 'FR'
+	'iso_code' => 'FR',
+	'country' => 'FRANCE',
+	'phone' => '0102030406'
 );
 
 $skybill = array(
 	'evt_code' => 'DC',
-	'product_code' => '20',
+	'product_code' => $product_code,
 	'weight' => 1000 / 1000,
-	'service' => 0,
+	'service' => $service_code,
 	'object_type' => 'MAR'
+);
+
+
+$time_slot_date = new DateTime($date, new DateTimeZone('Europe/Paris'));
+$time_slot_start = new DateTime($date . ' ' . $slot_start . ':00:00', new DateTimeZone('Europe/Paris'));
+$time_slot_end = new DateTime($date . ' ' . $slot_end . ':00:00', new DateTimeZone('Europe/Paris'));
+
+$appointment = array(
+	'time_slot_tariff' => $tariff,
+	'time_slot_start' => $time_slot_start->format('Y-m-d\TH:i:s.uZ'),
+	'time_slot_end' => $time_slot_end->format('Y-m-d\TH:i:s.uZ'),
 );
 
 $ref = array(
@@ -143,7 +161,7 @@ $ref = array(
 	'shipper_ref' => '123456'
 );
 
-$res = ChronoDeliverySlot::shippingBooking($confirm, $customer, $shipper, $skybill, $ref);
+$res = ChronoDeliverySlot::shippingBooking($confirm, $customer, $shipper, $skybill, $ref, $appointment );
 
 $booking = $res['shipping'];
 
