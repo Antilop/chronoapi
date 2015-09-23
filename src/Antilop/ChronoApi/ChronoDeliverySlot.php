@@ -174,7 +174,7 @@ class ChronoDeliverySlot extends SoapClient
 		return $result;
 	}
 
-	public static function shippingBooking(confirmDeliverySlot $parameters, $customer = array(), $shipper = array(), $skybill = array(), $ref = array(), $appointment = array())
+	public static function shippingBooking(confirmDeliverySlot $parameters, $customer = array(), $shipper = array(), $skybill = array(), $ref = array(), $appointment = array(), $mode = 'THE')
 	{
 		if (!is_array($customer) || !is_array($shipper) || !is_array($skybill) || !is_array($ref) || !is_array($appointment)) {
 			return false;
@@ -253,7 +253,7 @@ class ChronoDeliverySlot extends SoapClient
 		$skybill_value->service = isset($skybill['service']) ? $skybill['service'] : '';
 
 		$skybill_params = new skybillParamsValue();
-		$skybill_params->mode = 'PDF';
+		$skybill_params->mode = $mode;
 
 		$appointment_value = new appointementValue();
 		$appointment_value->timeSlotTariffLevel = isset($appointment['time_slot_tariff']) ? $appointment['time_slot_tariff'] : '';
