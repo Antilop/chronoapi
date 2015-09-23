@@ -174,9 +174,9 @@ class ChronoDeliverySlot extends SoapClient
 		return $result;
 	}
 
-	public static function shippingBooking(confirmDeliverySlot $parameters, $customer = array(), $shipper = array(), $skybill = array(), $ref = array())
+	public static function shippingBooking(confirmDeliverySlot $parameters, $customer = array(), $shipper = array(), $skybill = array(), $ref = array(), $appointment = array())
 	{
-		if (!is_array($customer) || !is_array($shipper) || !is_array($skybill) || !is_array($ref)) {
+		if (!is_array($customer) || !is_array($shipper) || !is_array($skybill) || !is_array($ref) || !is_array($appointment)) {
 			return false;
 		}
 
@@ -196,11 +196,13 @@ class ChronoDeliverySlot extends SoapClient
 		$shipper_value->shipperAdress2 = isset($shipper['address2']) ? substr($shipper['address2'], 0, 35) : '';
 		$shipper_value->shipperCity = isset($shipper['city']) ? substr($shipper['city'], 0, 30) : '';
 		$shipper_value->shipperCountry = isset($shipper['iso_code']) ? $shipper['iso_code'] : '';
+		$shipper_value->shipperCountryName = isset($shipper['country']) ? $shipper['country'] : '';
 		$shipper_value->shipperZipCode = isset($shipper['zip_code']) ? $shipper['zip_code'] : '';
 		$shipper_value->shipperName = isset($shipper['name']) ? $shipper['name'] : '';
 		$shipper_value->shipperName2 = isset($shipper['name2']) ? substr($shipper['name2'], 0, 35) : '';
 		$shipper_value->shipperMobilePhone = isset($shipper['mobile']) ? $shipper['mobile'] : '';
 		$shipper_value->shipperPhone = isset($shipper['phone']) ? $shipper['phone'] : '';
+		$shipper_value->shipperEmail = isset($shipper['email']) ? $shipper['email'] : '';
 
 		//Informations destinataire
 		$customer_value = new customerValue();
@@ -210,11 +212,14 @@ class ChronoDeliverySlot extends SoapClient
 		$customer_value->customerAdress2 = substr($customer['address2'], 0, 35);
 		$customer_value->customerCity = substr($customer['city'], 0, 30);
 		$customer_value->customerCountry = $customer['iso_code'];
+		$customer_value->customerCountryName = isset($customer['country']) ? $customer['country'] : '';
 		$customer_value->customerZipCode = $customer['zip_code'];
 		$customer_value->customerName = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
-		$customer_value->customer2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
+		$customer_value->customerName2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
 		$customer_value->customerMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
 		$customer_value->customerPhone = isset($customer['phone']) ? $customer['phone'] : '';
+		$customer_value->customerEmail = isset($customer['email']) ? $customer['email'] : '';
+		$customer_value->customerPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
 
 		$recipient_value = new recipientValue();
 		$recipient_value->recipientCivility = isset($customer['civility']) ? $customer['civility'] : '';
@@ -225,13 +230,18 @@ class ChronoDeliverySlot extends SoapClient
 		$recipient_value->recipientAdress2 = isset($customer['address2']) ? $customer['address2'] : '';
 		$recipient_value->recipientCity = isset($customer['city']) ? $customer['city'] : '';
 		$recipient_value->recipientCountry = isset($customer['iso_code']) ? $customer['iso_code'] : '';
+		$recipient_value->recipientCountryName = isset($customer['country']) ? $customer['country'] : '';
 		$recipient_value->recipientZipCode = isset($customer['zip_code']) ? $customer['zip_code'] : '';
 		$recipient_value->recipientPhone = isset($customer['phone']) ? $customer['phone'] : '';
 		$recipient_value->recipientMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
+		$recipient_value->recipientEmail = isset($customer['email']) ? $customer['email'] : '';
+		$recipient_value->recipientPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
 
 		$ref_value = new refValue();
 		$ref_value->recipientRef = isset($ref['recipient_ref']) ? $ref['recipient_ref'] : '';
 		$ref_value->shipperRef = isset($ref['shipper_ref']) ? $ref['shipper_ref'] : '';
+		$ref_value->customerSkybillNumber = isset($ref['customer_skybill_number']) ? $ref['customer_skybill_number'] : '';
+		$ref_value->PCardTransactionNumber = isset($ref['card_transaction_number']) ? $ref['card_transaction_number'] : '';
 
 		$skybill_value = new skybillValue();
 		$skybill_value->productCode = isset($skybill['product_code']) ? $skybill['product_code'] : '';
@@ -245,6 +255,16 @@ class ChronoDeliverySlot extends SoapClient
 		$skybill_params = new skybillParamsValue();
 		$skybill_params->mode = 'PDF';
 
+		$appointment_value = new appointementValue();
+		$appointment_value->timeSlotTariffLevel = isset($appointment['time_slot_tariff']) ? $appointment['time_slot_tariff'] : '';
+		$appointment_value->timeSlotStartDate = isset($appointment['time_slot_start']) ? $appointment['time_slot_start'] : '';
+		$appointment_value->timeSlotEndDate  = isset($appointment['time_slot_end']) ? $appointment['time_slot_end'] : '';
+
+		$scheduled_value = new scheduledValue();
+		$scheduled_value->appointmentValue = $appointment_value;
+		$scheduled_value->expirationDate = isset($appointment['expiration_date']) ? $appointment['expiration_date'] : '';
+		$scheduled_value->sellByDate = isset($appointment['sell_by_date']) ? $appointment['sell_by_date'] : '';
+
 		$shipping_booking = new shippingWithReservationAndESDWithRefClient();
 		$shipping_booking->headerValue = $header;
 		$shipping_booking->shipperValue = $shipper_value;
@@ -253,6 +273,7 @@ class ChronoDeliverySlot extends SoapClient
 		$shipping_booking->refValue = $ref_value;
 		$shipping_booking->skybillValue = $skybill_value;
 		$shipping_booking->skybillParamsValue = $skybill_params;
+		$shipping_booking->scheduledValue = $scheduled_value;
 		$shipping_booking->password = $parameters->password;
 
 		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($shipping_booking)->return;

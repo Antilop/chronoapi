@@ -131,14 +131,14 @@ class skybillParamsValue
 	public $mode; // string
 }
 
-class appointementParamsValue
+class scheduledValue
 {
 	public $appointmentValue;
 	public $expirationDate;
 	public $sellByDate;
 }
 
-class scheduledParamsValue
+class appointementValue
 {
 	public $timeSlotEndDate;
 	public $timeSlotStartDate;
@@ -259,8 +259,8 @@ class shippingWithReservationAndESDWithRefClient
 	public $refValue; // refValue
 	public $skybillValue; // skybillValue
 	public $skybillParamsValue; // skybillParamsValue
-	public $appointmentParamsValue; // appointmentParamsValue
-	public $scheduledParamsValue; // scheduledParamsValue
+	public $appointmentValue; // appointmentValue
+	public $scheduledValue; // scheduledValue
 	public $password; // string
 	public $modeRetour; // string
 }
@@ -403,8 +403,8 @@ class ShippingServiceWSService extends SoapClient
 		'refValue' => 'refValue',
 		'skybillValue' => 'skybillValue',
 		'skybillParamsValue' => 'skybillParamsValue',
-		'appointmentParamsValue' => 'appointmentParamsValue',
-		'scheduledParamsValue' => 'scheduledParamsValue',
+		'appointmentValue' => 'appointmentValue',
+		'scheduledValue' => 'scheduledValue',
 		'resultExpeditionValue' => 'resultExpeditionValue',
 		'resultGetReservedSkybillValue' => 'resultGetReservedSkybillValue',
 		'resultReservationExpeditionValue' => 'resultReservationExpeditionValue',
