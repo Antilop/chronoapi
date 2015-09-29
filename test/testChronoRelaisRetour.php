@@ -43,7 +43,7 @@ $recipient = array(
 	'email' => 'stephanie@antilop.fr'
 );
 
-$product_code = '86';
+$product_code = '16';
 $service_code = '0';
 $skybill = array(
 	'evt_code' => 'DC',
