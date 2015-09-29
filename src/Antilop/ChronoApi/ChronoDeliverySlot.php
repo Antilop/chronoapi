@@ -108,21 +108,21 @@ class ChronoDeliverySlot extends SoapClient
 		$customer_value->customerPreAlert = isset($recipient['pre_alert']) ? $recipient['pre_alert'] : '';
 
 		//Informations expéditeur
-		$shipper = new shipperValue();
-		$shipper->shipperCivility = $customer['civility'];
-		$shipper->shipperContactName = substr($customer['contact_name'], 0, 35);
-		$shipper->shipperAdress1 = substr($customer['address1'], 0, 35);
-		$shipper->shipperAdress2 = substr($customer['address2'], 0, 35);
-		$shipper->shipperCity = substr($customer['city'], 0, 30);
-		$shipper->shipperCountry = $customer['iso_code'];
-		$shipper->shipperZipCode = $customer['zip_code'];
-		$shipper->shipperName = substr($customer['name'], 0, 35);
-		$shipper->shipperName2 = substr($customer['name2'], 0, 35);
-		$shipper->shipperMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
-		$shipper->shipperPhone = isset($customer['phone']) ? $customer['phone'] : '';
-		$shipper->shipperCountryName = isset($customer['country']) ? $customer['country'] : '';
-		$shipper->shipperEmail = isset($customer['email']) ? $customer['email'] : '';
-		$shipper->shipperPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
+		$shipper_value = new shipperValue();
+		$shipper_value->shipperCivility = $customer['civility'];
+		$shipper_value->shipperContactName = substr($customer['contact_name'], 0, 35);
+		$shipper_value->shipperAdress1 = substr($customer['address1'], 0, 35);
+		$shipper_value->shipperAdress2 = substr($customer['address2'], 0, 35);
+		$shipper_value->shipperCity = substr($customer['city'], 0, 30);
+		$shipper_value->shipperCountry = $customer['iso_code'];
+		$shipper_value->shipperZipCode = $customer['zip_code'];
+		$shipper_value->shipperName = substr($customer['name'], 0, 35);
+		$shipper_value->shipperName2 = substr($customer['name2'], 0, 35);
+		$shipper_value->shipperMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
+		$shipper_value->shipperPhone = isset($customer['phone']) ? $customer['phone'] : '';
+		$shipper_value->shipperCountryName = isset($customer['country']) ? $customer['country'] : '';
+		$shipper_value->shipperEmail = isset($customer['email']) ? $customer['email'] : '';
+		$shipper_value->shipperPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
 
 		//Informations destinataire
 		$recipient_value = new recipientValue();
@@ -162,7 +162,7 @@ class ChronoDeliverySlot extends SoapClient
 		$esd_booking = new shippingWithReservationAndESDWithRefClient();
 		$esd_booking->esdValue = $esd_value;
 		$esd_booking->headerValue = $header;
-		$esd_booking->shipperValue = $shipper;
+		$esd_booking->shipperValue = $shipper_value;
 		$esd_booking->customerValue = $customer_value;
 		$esd_booking->recipientValue = $recipient_value;
 		$esd_booking->refValue = $ref_value;
@@ -173,7 +173,6 @@ class ChronoDeliverySlot extends SoapClient
 		$esd_booking->version = '2.0';
 
 		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($esd_booking)->return;
-		var_dump($shipping_ws->__getLastRequest());
 		if ($res->errorCode == 0) {
 			$result = array(
 				'result' => true,
