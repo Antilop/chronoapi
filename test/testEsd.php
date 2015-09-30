@@ -108,33 +108,34 @@ echo "\n\n";
 
 $customer = array(
 	'civility' => 'M',
-	'firstname' => 'John',
-	'lastname' => 'Doe',
 	'name' => 'John Doe',
-	'address1' => '46 rue de douai',
+	'contact_name' => 'John Doe',
+	'address1' => '27 rue du départ',
 	'address2' => '',
-	'zip_code' => 75009,
+	'zip_code' => 75013,
 	'city' => 'Paris',
 	'iso_code' => 'FR',
 	'country' => 'FRANCE',
-	'phone' => '0102030405'
+	'phone' => '0606060606',
+	'email' => 'stephanie@antilop.fr'
 );
 
 $recipient = array(
 	'civility' => 'M',
-	'name' => 'Entreprise X',
-	'name2' => '',
-	'address1' => '57 boulevard des batignolles',
-	'address2' => 'App 6',
-	'zip_code' => 75017,
+	'name' => 'Entreprise',
+	'name2' => 'X',
+	'address1' => '30 rue de l\'arrivée',
+	'address2' => 'Bâtiment A',
+	'zip_code' => 75009,
 	'city' => 'Paris',
 	'iso_code' => 'FR',
 	'country' => 'FRANCE',
-	'phone' => '0102030406'
+	'phone' => '0606060606',
+	'email' => 'stephanie@antilop.fr'
 );
 
 $time_slot_start = new DateTime($date . ' ' . $slot_start . ':00:00', new DateTimeZone('Europe/Paris'));
-$time_slot_end = new DateTime($date . ' ' . '19:00:00', new DateTimeZone('Europe/Paris'));
+$time_slot_end = new DateTime($date . ' ' . $slot_end . ':00:00', new DateTimeZone('Europe/Paris'));
 $esd = array(
 	'specific_instructions' => 'aucune',
 	'height' => '50',
@@ -142,7 +143,7 @@ $esd = array(
 	'length' => '50',
 	'retrieval_datetime' => $time_slot_start->format('Y-m-d\TH:i:s.uZ'),
 	'closing_datetime' => $time_slot_end->format('Y-m-d\TH:i:s.uZ'),
-	'ref_esd' => 'esd' . $now->format('His'),
+	'ref_esd' => 'ESD' . $now->format('His'),
 	'lt_print_by_chrono' => 1,
 	'nb_passage' => 1
 );
@@ -152,24 +153,39 @@ $service_code = '0';
 $skybill = array(
 	'evt_code' => 'DC',
 	'product_code' => $product_code,
-	'weight' => 1000,
+	'weight' => 1000 / 1000,
 	'service' => $service_code,
 	'object_type' => 'MAR'
 );
 
 $ref = array(
-	'recipient_ref' => 'REF_R_1',
-	'shipper_ref' => 'REF_S_2',
+	'recipient_ref' => 'ESD' . $now->format('His'),
+	'shipper_ref' => 'ESD' . $now->format('His'),
 );
 
 $res = ChronoDeliverySlot::esdBooking($confirm, $customer, $recipient, $esd, $skybill, $ref, 'THE');
 $esd = $res['esd'];
+
+if (!$esd) {
+	die($res['message'] . "\n");
+}
 
 echo "----------------3 : ESD -----------------\n";
 echo "Code : " . $esd->errorCode ."\n";
 echo "Message : " . $esd->errorMessage ."\n";
 echo "Pickup date : " . $esd->pickupDate ."\n";
 echo "Esd number : " . $esd->ESDNumber ."\n";
+echo "Esd full number : " . $esd->ESDFullNumber ."\n";
 echo "Tracking number : " . $esd->skybillNumber ."\n";
 echo "---------------------------------------------------";
+echo "\n\n";
+
+$etiquette = ChronoDeliverySlot::getEtiquette(array('reservation_number' => $esd->reservationNumber));
+if (!$etiquette['result']) {
+	die("Error ".$etiquette['error']."\n");
+}
+
+echo "----------------4 : Récupération étiquette ------------\n";
+echo "Url étiquette : " . $etiquette['url_etiquette'] ."\n";
+echo "-------------------------------------------------------";
 echo "\n\n";

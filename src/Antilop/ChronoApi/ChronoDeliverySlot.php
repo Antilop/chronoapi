@@ -17,7 +17,7 @@ class ChronoDeliverySlot extends SoapClient
 	protected $password = false;
 	protected $accountNumber = false;
 
-	public function __construct($wsdl = 'https://www.chronopost.fr/rdv-cxf/services/CreneauServiceWS?wsdl', $options = array('soap_version' => SOAP_1_1, 'trace' => 1))
+	public function __construct($wsdl = 'https://www.chronopost.fr/rdv-cxf/services/CreneauServiceWS?wsdl', $options = array('soap_version' => SOAP_1_1, 'trace' => 1, 'encoding' => 'UTF-8'))
 	{
 		parent::__construct($wsdl, $options);
 	}
@@ -69,7 +69,7 @@ class ChronoDeliverySlot extends SoapClient
 			return false;
 		}
 
-		$shipping_ws = new ShippingServiceWSService("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('soap_version' => SOAP_1_1, 'trace' => 1));
+		$shipping_ws = new ShippingServiceWSService("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('soap_version' => SOAP_1_1, 'trace' => 1, 'encoding' => 'UTF-8'));
 
 		$now = new DateTime('now', new DateTimeZone('Europe/Paris'));
 		$esd_value = new esdValue();
@@ -90,38 +90,39 @@ class ChronoDeliverySlot extends SoapClient
 		$header->accountNumber = $parameters->accountNumber;
 		$header->idEmit = 'CHRFR';
 
-		//Informations expéditeur
-		$shipper = new shipperValue();
-		$shipper->shipperCivility = $customer['civility'];
-		$shipper->shipperContactName = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
-		$shipper->shipperAdress1 = substr($customer['address1'], 0, 35);
-		$shipper->shipperAdress2 = substr($customer['address2'], 0, 35);
-		$shipper->shipperCity = substr($customer['city'], 0, 30);
-		$shipper->shipperCountry = $customer['iso_code'];
-		$shipper->shipperZipCode = $customer['zip_code'];
-		$shipper->shipperName = $customer['company'];
-		$shipper->shipperName2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
-		$shipper->shipperMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
-		$shipper->shipperPhone = isset($customer['phone']) ? $customer['phone'] : '';
-		$shipper->shipperCountryName = isset($customer['country']) ? $customer['country'] : '';
-		$shipper->shipperEmail = isset($customer['email']) ? $customer['email'] : '';
-		$shipper->shipperPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
-
+		//Informations Client = entreprise
 		$customer_value = new customerValue();
-		$customer_value->customerCivility = $customer['civility'];
-		$customer_value->customerContactName = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
-		$customer_value->customerAdress1 = substr($customer['address1'], 0, 35);
-		$customer_value->customerAdress2 = substr($customer['address2'], 0, 35);
-		$customer_value->customerCity = substr($customer['city'], 0, 30);
-		$customer_value->customerCountry = $customer['iso_code'];
-		$customer_value->customerZipCode = $customer['zip_code'];
-		$customer_value->customerName = $customer['company'];
-		$customer_value->customer2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
-		$customer_value->customerMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
-		$customer_value->customerPhone = isset($customer['phone']) ? $customer['phone'] : '';
+		$customer_value->customerCivility = isset($recipient['civility']) ? $recipient['civility'] : '';
+		$customer_value->customerContactName = isset($recipient['contact_name']) ? substr($recipient['contact_name'], 0, 35) : '';
+		$customer_value->customerAdress1 = isset($recipient['address1']) ? $recipient['address1'] : '';
+		$customer_value->customerAdress2 = isset($recipient['address2']) ? $recipient['address2'] : '';
+		$customer_value->customerZipCode = isset($recipient['zip_code']) ? $recipient['zip_code'] : '';
+		$customer_value->customerCity = isset($recipient['city']) ? $recipient['city'] : '';
+		$customer_value->customerCountry = isset($recipient['iso_code']) ? $recipient['iso_code'] : '';
 		$customer_value->customerCountryName = isset($customer['country']) ? $customer['country'] : '';
-		$customer_value->customerEmail = isset($customer['email']) ? $customer['email'] : '';
-		$customer_value->customerPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
+		$customer_value->customerName = isset($recipient['name']) ? $recipient['name'] : '';
+		$customer_value->customerName2 = isset($recipient['name2']) ? $recipient['name2'] : '';
+		$customer_value->customerPhone = isset($recipient['phone']) ? $recipient['phone'] : '';
+		$customer_value->customerMobilePhone = isset($recipient['mobile']) ? $recipient['mobile'] : '';
+		$customer_value->customerEmail = isset($recipient['email']) ? $recipient['email'] : '';
+		$customer_value->customerPreAlert = isset($recipient['pre_alert']) ? $recipient['pre_alert'] : '';
+
+		//Informations expéditeur
+		$shipper_value = new shipperValue();
+		$shipper_value->shipperCivility = $customer['civility'];
+		$shipper_value->shipperContactName = substr($customer['contact_name'], 0, 35);
+		$shipper_value->shipperAdress1 = substr($customer['address1'], 0, 35);
+		$shipper_value->shipperAdress2 = substr($customer['address2'], 0, 35);
+		$shipper_value->shipperCity = substr($customer['city'], 0, 30);
+		$shipper_value->shipperCountry = $customer['iso_code'];
+		$shipper_value->shipperZipCode = $customer['zip_code'];
+		$shipper_value->shipperName = substr($customer['name'], 0, 35);
+		$shipper_value->shipperName2 = substr($customer['name2'], 0, 35);
+		$shipper_value->shipperMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
+		$shipper_value->shipperPhone = isset($customer['phone']) ? $customer['phone'] : '';
+		$shipper_value->shipperCountryName = isset($customer['country']) ? $customer['country'] : '';
+		$shipper_value->shipperEmail = isset($customer['email']) ? $customer['email'] : '';
+		$shipper_value->shipperPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
 
 		//Informations destinataire
 		$recipient_value = new recipientValue();
@@ -134,8 +135,8 @@ class ChronoDeliverySlot extends SoapClient
 		$recipient_value->recipientCity = isset($recipient['city']) ? $recipient['city'] : '';
 		$recipient_value->recipientCountry = isset($recipient['iso_code']) ? $recipient['iso_code'] : '';
 		$recipient_value->recipientZipCode = isset($recipient['zip_code']) ? $recipient['zip_code'] : '';
-		$recipient_value->recipientPhone = isset($recipient['mobile']) ? $recipient['mobile'] : '';
-		$recipient_value->recipientMobilePhone = isset($recipient['phone']) ? $recipient['phone'] : '';
+		$recipient_value->recipientPhone = isset($recipient['phone']) ? $recipient['phone'] : '';
+		$recipient_value->recipientMobilePhone = isset($recipient['mobile']) ? $recipient['mobile'] : '';
 		$recipient_value->recipientCountryName = isset($customer['country']) ? $customer['country'] : '';
 		$recipient_value->recipientEmail = isset($recipient['email']) ? $recipient['email'] : '';
 		$recipient_value->recipientPreAlert = isset($recipient['pre_alert']) ? $recipient['pre_alert'] : '';
@@ -161,7 +162,7 @@ class ChronoDeliverySlot extends SoapClient
 		$esd_booking = new shippingWithReservationAndESDWithRefClient();
 		$esd_booking->esdValue = $esd_value;
 		$esd_booking->headerValue = $header;
-		$esd_booking->shipperValue = $shipper;
+		$esd_booking->shipperValue = $shipper_value;
 		$esd_booking->customerValue = $customer_value;
 		$esd_booking->recipientValue = $recipient_value;
 		$esd_booking->refValue = $ref_value;
@@ -169,6 +170,7 @@ class ChronoDeliverySlot extends SoapClient
 		$esd_booking->skybillParamsValue = $skybill_params;
 		$esd_booking->password = $parameters->password;
 		$esd_booking->modeRetour = $mode_retour;
+		$esd_booking->version = '2.0';
 
 		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($esd_booking)->return;
 		if ($res->errorCode == 0) {
@@ -193,13 +195,30 @@ class ChronoDeliverySlot extends SoapClient
 			return false;
 		}
 
-		$shipping_ws = new ShippingServiceWSService("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('soap_version' => SOAP_1_1, 'trace' => 1));
+		$shipping_ws = new ShippingServiceWSService("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('soap_version' => SOAP_1_1, 'trace' => 1, 'encoding' => 'UTF-8'));
 
 		$now = new DateTime('now', new DateTimeZone('Europe/Paris'));
 
 		$header = new headerValue();
 		$header->accountNumber = $parameters->accountNumber;
 		$header->idEmit = 'CHRFR';
+
+		//Informations client = entreprise
+		$customer_value = new customerValue();
+		$customer_value->customerCivility = isset($shipper['civility']) ? $shipper['civility'] : '';
+		$customer_value->customerContactName = isset($shipper['contact_name']) ? substr($shipper['contact_name'], 0, 35) : '';
+		$customer_value->customerAdress1 = isset($shipper['address1']) ? substr($shipper['address1'], 0, 35) : '';
+		$customer_value->customerAdress2 = isset($shipper['address2']) ? substr($shipper['address2'], 0, 35) : '';
+		$customer_value->customerCity = isset($shipper['city']) ? substr($shipper['city'], 0, 30) : '';
+		$customer_value->customerCountry = isset($shipper['iso_code']) ? $shipper['iso_code'] : '';
+		$customer_value->customerCountryName = isset($shipper['country']) ? $shipper['country'] : '';
+		$customer_value->customerZipCode = isset($shipper['zip_code']) ? $shipper['zip_code'] : '';
+		$customer_value->customerName = isset($shipper['name']) ? $shipper['name'] : '';
+		$customer_value->customerName2 = isset($shipper['name2']) ? substr($shipper['name2'], 0, 35) : '';
+		$customer_value->customerMobilePhone = isset($shipper['mobile']) ? $shipper['mobile'] : '';
+		$customer_value->customerPhone = isset($shipper['phone']) ? $shipper['phone'] : '';
+		$customer_value->customerEmail = isset($shipper['email']) ? $shipper['email'] : '';
+		$customer_value->customerPreAlert = isset($shipper['pre_alert']) ? $shipper['pre_alert'] : '';
 
 		//Informations expéditeur
 		$shipper_value = new shipperValue();
@@ -216,24 +235,9 @@ class ChronoDeliverySlot extends SoapClient
 		$shipper_value->shipperMobilePhone = isset($shipper['mobile']) ? $shipper['mobile'] : '';
 		$shipper_value->shipperPhone = isset($shipper['phone']) ? $shipper['phone'] : '';
 		$shipper_value->shipperEmail = isset($shipper['email']) ? $shipper['email'] : '';
+		$shipper_value->shipperPreAlert = isset($shipper['pre_alert']) ? $shipper['pre_alert'] : '';
 
 		//Informations destinataire
-		$customer_value = new customerValue();
-		$customer_value->customerCivility = $customer['civility'];
-		$customer_value->customerContactName = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
-		$customer_value->customerAdress1 = substr($customer['address1'], 0, 35);
-		$customer_value->customerAdress2 = substr($customer['address2'], 0, 35);
-		$customer_value->customerCity = substr($customer['city'], 0, 30);
-		$customer_value->customerCountry = $customer['iso_code'];
-		$customer_value->customerCountryName = isset($customer['country']) ? $customer['country'] : '';
-		$customer_value->customerZipCode = $customer['zip_code'];
-		$customer_value->customerName = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
-		$customer_value->customerName2 = substr($customer['firstname'] . ' ' . $customer['lastname'], 0, 35);
-		$customer_value->customerMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
-		$customer_value->customerPhone = isset($customer['phone']) ? $customer['phone'] : '';
-		$customer_value->customerEmail = isset($customer['email']) ? $customer['email'] : '';
-		$customer_value->customerPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
-
 		$recipient_value = new recipientValue();
 		$recipient_value->recipientCivility = isset($customer['civility']) ? $customer['civility'] : '';
 		$recipient_value->recipientName = isset($customer['name']) ? $customer['name'] : '';
@@ -311,7 +315,7 @@ class ChronoDeliverySlot extends SoapClient
 		$etiquette = new getReservedSkybillWithType();
 		$etiquette->reservationNumber = $params['reservation_number'];
 
-		$shipping_ws = new ShippingServiceWSService("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('soap_version' => SOAP_1_1, 'trace' => 1));
+		$shipping_ws = new ShippingServiceWSService("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('soap_version' => SOAP_1_1, 'trace' => 1, 'encoding' => 'UTF-8'));
 		$response = $shipping_ws->getReservedSkybillWithType($etiquette)->return;
 
 		if (is_object($response)) {

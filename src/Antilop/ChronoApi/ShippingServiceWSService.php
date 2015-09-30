@@ -263,6 +263,7 @@ class shippingWithReservationAndESDWithRefClient
 	public $scheduledValue; // scheduledValue
 	public $password; // string
 	public $modeRetour; // string
+	public $version;
 }
 
 class shippingWithReservationAndESDWithRefClientResponse
@@ -425,7 +426,7 @@ class ShippingServiceWSService extends SoapClient
 		'shippingWithESDOnlyResponse' => 'shippingWithESDOnlyResponse',
 	);
 
-	public function ShippingServiceWSService($wsdl = "https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", $options = array('soap_version' => SOAP_1_1, 'trace' => 1))
+	public function ShippingServiceWSService($wsdl = "https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", $options = array('soap_version' => SOAP_1_1, 'trace' => 1, 'encoding' => 'UTF-8'))
 	{
 		foreach (self::$classmap as $key => $value) {
 			if (!isset($options['classmap'][$key])) {
