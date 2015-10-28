@@ -10,6 +10,7 @@ use DateTimeZone;
 
 use Antilop\ChronoApi\Request\searchDeliverySlot;
 use Antilop\ChronoApi\Request\confirmDeliverySlot;
+use Antilop\ChronoApi\Request\cancelSkybill;
 use Antilop\ChronoApi\ShippingServiceWSService;
 
 class ChronoDeliverySlot extends SoapClient
@@ -445,6 +446,44 @@ class ChronoDeliverySlot extends SoapClient
 			$result = array(
 				'result' => false,
 				'error' => $response->errorMessage
+			);
+		}
+
+		return $result;
+	}
+
+	public static function cancelSkybill($params)
+	{
+		if (!$params) {
+			$result = array(
+				'result' => false,
+				'error' => 'Paramètres manquants.'
+			);
+
+			return $result;
+		}
+
+		$tracking_ws = new TrackingServiceWSService();
+		$response = $tracking_ws->cancelSkybill($params)->return;
+
+		if (is_object($response)) {
+			$error_code = $response->errorCode;
+			if ($error_code === 0) {
+				$result = array(
+					'result' => true,
+					'code_error' => $error_code
+				);
+			} else {
+				$result = array(
+					'result' => false,
+					'error' => $response->errorMessage,
+					'code_error' => $response->errorCode
+				);
+			}
+		} else {
+			$result = array(
+				'result' => false,
+				'error' => 'Une erreur est survenue',
 			);
 		}
 
