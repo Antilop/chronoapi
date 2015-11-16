@@ -311,6 +311,116 @@ class ChronoDeliverySlot extends SoapClient
 		return $result;
 	}
 
+	public static function shippingDeliveryBooking(confirmDeliverySlot $parameters, $customer = array(), $shipper = array(), $skybill = array(), $ref = array(), $mode = 'THE')
+	{
+		if (!is_array($customer) || !is_array($shipper) || !is_array($skybill) || !is_array($ref)) {
+			return false;
+		}
+
+		$shipping_ws = new ShippingServiceWSService("https://www.chronopost.fr/shipping-cxf/ShippingServiceWS?wsdl", array('soap_version' => SOAP_1_1, 'trace' => 1, 'encoding' => 'UTF-8'));
+
+		$now = new DateTime('now', new DateTimeZone('Europe/Paris'));
+
+		$header = new headerValue();
+		$header->accountNumber = $parameters->accountNumber;
+		$header->idEmit = 'CHRFR';
+
+		//Informations client = entreprise
+		$customer_value = new customerValue();
+		$customer_value->customerCivility = isset($shipper['civility']) ? $shipper['civility'] : '';
+		$customer_value->customerContactName = isset($shipper['contact_name']) ? substr($shipper['contact_name'], 0, 35) : '';
+		$customer_value->customerAdress1 = isset($shipper['address1']) ? substr($shipper['address1'], 0, 35) : '';
+		$customer_value->customerAdress2 = isset($shipper['address2']) ? substr($shipper['address2'], 0, 35) : '';
+		$customer_value->customerCity = isset($shipper['city']) ? substr($shipper['city'], 0, 30) : '';
+		$customer_value->customerCountry = isset($shipper['iso_code']) ? $shipper['iso_code'] : '';
+		$customer_value->customerCountryName = isset($shipper['country']) ? $shipper['country'] : '';
+		$customer_value->customerZipCode = isset($shipper['zip_code']) ? $shipper['zip_code'] : '';
+		$customer_value->customerName = isset($shipper['name']) ? $shipper['name'] : '';
+		$customer_value->customerName2 = isset($shipper['name2']) ? substr($shipper['name2'], 0, 35) : '';
+		$customer_value->customerMobilePhone = isset($shipper['mobile']) ? $shipper['mobile'] : '';
+		$customer_value->customerPhone = isset($shipper['phone']) ? $shipper['phone'] : '';
+		$customer_value->customerEmail = isset($shipper['email']) ? $shipper['email'] : '';
+		$customer_value->customerPreAlert = isset($shipper['pre_alert']) ? $shipper['pre_alert'] : '';
+
+		//Informations expéditeur
+		$shipper_value = new shipperValue();
+		$shipper_value->shipperCivility = isset($shipper['civility']) ? $shipper['civility'] : '';
+		$shipper_value->shipperContactName = isset($shipper['contact_name']) ? substr($shipper['contact_name'], 0, 35) : '';
+		$shipper_value->shipperAdress1 = isset($shipper['address1']) ? substr($shipper['address1'], 0, 35) : '';
+		$shipper_value->shipperAdress2 = isset($shipper['address2']) ? substr($shipper['address2'], 0, 35) : '';
+		$shipper_value->shipperCity = isset($shipper['city']) ? substr($shipper['city'], 0, 30) : '';
+		$shipper_value->shipperCountry = isset($shipper['iso_code']) ? $shipper['iso_code'] : '';
+		$shipper_value->shipperCountryName = isset($shipper['country']) ? $shipper['country'] : '';
+		$shipper_value->shipperZipCode = isset($shipper['zip_code']) ? $shipper['zip_code'] : '';
+		$shipper_value->shipperName = isset($shipper['name']) ? $shipper['name'] : '';
+		$shipper_value->shipperName2 = isset($shipper['name2']) ? substr($shipper['name2'], 0, 35) : '';
+		$shipper_value->shipperMobilePhone = isset($shipper['mobile']) ? $shipper['mobile'] : '';
+		$shipper_value->shipperPhone = isset($shipper['phone']) ? $shipper['phone'] : '';
+		$shipper_value->shipperEmail = isset($shipper['email']) ? $shipper['email'] : '';
+		$shipper_value->shipperPreAlert = isset($shipper['pre_alert']) ? $shipper['pre_alert'] : '';
+
+		//Informations destinataire
+		$recipient_value = new recipientValue();
+		$recipient_value->recipientCivility = isset($customer['civility']) ? $customer['civility'] : '';
+		$recipient_value->recipientName = isset($customer['name']) ? $customer['name'] : '';
+		$recipient_value->recipientName2 = isset($customer['name2']) ? $customer['name2'] : '';
+		$recipient_value->recipientContactName = isset($customer['contact_name']) ? substr($customer['contact_name'], 0, 35) : '';
+		$recipient_value->recipientAdress1 = isset($customer['address1']) ? $customer['address1'] : '';
+		$recipient_value->recipientAdress2 = isset($customer['address2']) ? $customer['address2'] : '';
+		$recipient_value->recipientCity = isset($customer['city']) ? $customer['city'] : '';
+		$recipient_value->recipientCountry = isset($customer['iso_code']) ? $customer['iso_code'] : '';
+		$recipient_value->recipientCountryName = isset($customer['country']) ? $customer['country'] : '';
+		$recipient_value->recipientZipCode = isset($customer['zip_code']) ? $customer['zip_code'] : '';
+		$recipient_value->recipientPhone = isset($customer['phone']) ? $customer['phone'] : '';
+		$recipient_value->recipientMobilePhone = isset($customer['mobile']) ? $customer['mobile'] : '';
+		$recipient_value->recipientEmail = isset($customer['email']) ? $customer['email'] : '';
+		$recipient_value->recipientPreAlert = isset($customer['pre_alert']) ? $customer['pre_alert'] : '';
+
+		$ref_value = new refValue();
+		$ref_value->recipientRef = isset($ref['recipient_ref']) ? $ref['recipient_ref'] : '';
+		$ref_value->shipperRef = isset($ref['shipper_ref']) ? $ref['shipper_ref'] : '';
+		$ref_value->customerSkybillNumber = isset($ref['customer_skybill_number']) ? $ref['customer_skybill_number'] : '';
+		$ref_value->PCardTransactionNumber = isset($ref['card_transaction_number']) ? $ref['card_transaction_number'] : '';
+
+		$skybill_value = new skybillValue();
+		$skybill_value->productCode = isset($skybill['product_code']) ? $skybill['product_code'] : '';
+		$skybill_value->evtCode = isset($skybill['evt_code']) ? $skybill['evt_code'] : '';
+		$skybill_value->shipDate = $now->format('Y-m-d\TH:i:s');
+		$skybill_value->shipHour = $now->format('H');
+		$skybill_value->objectType = isset($skybill['object_type']) ? $skybill['object_type'] : ''; //Type du colis = marchandise
+		$skybill_value->weight = isset($skybill['weight']) ? (float)$skybill['weight'] : '';
+		$skybill_value->service = isset($skybill['service']) ? $skybill['service'] : '';
+
+		$skybill_params = new skybillParamsValue();
+		$skybill_params->mode = $mode;
+
+		$shipping_booking = new shippingWithReservationAndESDWithRefClient();
+		$shipping_booking->headerValue = $header;
+		$shipping_booking->shipperValue = $shipper_value;
+		$shipping_booking->customerValue = $customer_value;
+		$shipping_booking->recipientValue = $recipient_value;
+		$shipping_booking->refValue = $ref_value;
+		$shipping_booking->skybillValue = $skybill_value;
+		$shipping_booking->skybillParamsValue = $skybill_params;
+		$shipping_booking->password = $parameters->password;
+
+		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($shipping_booking)->return;
+		if ($res->errorCode == 0) {
+			$result = array(
+				'result' => true,
+				'shipping' => $res
+			);
+		} else {
+			$result = array(
+				'result' => false,
+				'message' => $res->errorMessage,
+				'code' => $res->errorCode
+			);
+		}
+
+		return $result;
+	}
+
 	public static function shippingReturnBooking($params = array(), $customer = array(), $recipient = array(), $skybill = array(), $ref = array(), $mode = 'PDF')
 	{
 		if (!is_array($customer) || !is_array($recipient) || !is_array($skybill) || !is_array($ref)) {
