@@ -174,7 +174,6 @@ class ChronoDeliverySlot extends SoapClient
 		$esd_booking->version = '2.0';
 
 		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($esd_booking)->return;
-		print_r($shipping_ws->__getLastRequest());
 		if ($res->errorCode == 0) {
 			$result = array(
 				'result' => true,
@@ -296,7 +295,6 @@ class ChronoDeliverySlot extends SoapClient
 		$shipping_booking->password = $parameters->password;
 
 		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($shipping_booking)->return;
-		print_r($shipping_ws->__getLastRequest());
 		if ($res->errorCode == 0) {
 			$result = array(
 				'result' => true,
@@ -517,7 +515,6 @@ class ChronoDeliverySlot extends SoapClient
 		$shipping_return_booking->password = $params['password'];
 
 		$res = $shipping_ws->shippingWithReservationAndESDWithRefClient($shipping_return_booking)->return;
-		print_r($shipping_ws->__getLastRequest());
 		if ($res->errorCode == 0) {
 			$result = array(
 				'result' => true,
