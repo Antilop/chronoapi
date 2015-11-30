@@ -18,10 +18,10 @@ if (empty($account) || empty($passwd)) {
 
 $now = new DateTime('now', new DateTimeZone('Europe/Paris'));
 
-$date = '2015-09-28';
+$date = '2015-11-30';
 $date_start = new DateTime($date, new DateTimeZone('Europe/Paris'));
-$start_hour = 10;
-$end_hour = 12;
+$start_hour = 14;
+$end_hour = 16;
 
 $service = new ChronoDeliverySlot();
 
@@ -29,7 +29,7 @@ $search = new searchDeliverySlot();
 $search->accountNumber = $account;
 $search->password = $passwd;
 $search->shipperAdress1 = '82 Rue test';
-$search->shipperAdress2 = '';
+$search->shipperAdress2 = 'complement addr';
 $search->shipperZipCode = '75017';
 $search->shipperCity = 'Paris';
 $search->shipperCountry = 'FR';
@@ -109,9 +109,10 @@ echo "\n\n";
 $customer = array(
 	'civility' => 'M',
 	'name' => 'John Doe',
+	'name2' => 'societe JD',
 	'contact_name' => 'John Doe',
 	'address1' => '27 rue du départ',
-	'address2' => '',
+	'address2' => 'complement addr',
 	'zip_code' => 75013,
 	'city' => 'Paris',
 	'iso_code' => 'FR',
